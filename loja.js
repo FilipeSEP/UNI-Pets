@@ -1,4 +1,4 @@
-
+// Sistema de Carrinho e Usuário
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 let selectedShipping = null;
@@ -7,6 +7,7 @@ let checkoutData = {
     shipping: null,
     payment: null
 };
+
 
 const cartIcon = document.getElementById('cart-icon');
 const cartCounter = document.getElementById('cart-counter');
@@ -22,9 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCartCounter();
     updateUserInterface();
     setupEventListeners();
-    setupCheckoutButton(); 
-    mobileDebug(); 
 });
+
 
 function initializeModals() {
 
@@ -42,11 +42,12 @@ function initializeModals() {
             Total: R$ <span id="cart-total">0,00</span>
         </div>
         <div class="cart-footer">
-            <button class="btn-primary" id="checkout-btn" style="width: 100%;" onclick="handleFinalizarCompra(event)">Finalizar Compra</button>
+            <button class="btn-primary" id="checkout-btn" style="width: 100%;">Finalizar Compra</button>
         </div>
     `;
-
     document.body.appendChild(cartModal);
+
+    // Modal de Login
     loginModal = document.createElement('div');
     loginModal.className = 'modal';
     loginModal.innerHTML = `
@@ -73,48 +74,36 @@ function initializeModals() {
 }
 
 function setupEventListeners() {
+    // Carrinho
     if (cartIcon) {
         cartIcon.addEventListener('click', toggleCart);
-        cartIcon.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            toggleCart();
-        });
     }
 
     const closeCartBtn = document.querySelector('.close-cart');
     if (closeCartBtn) {
         closeCartBtn.addEventListener('click', toggleCart);
-        closeCartBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            toggleCart();
-        });
     }
 
+    const checkoutBtn = document.getElementById('checkout-btn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', finalizarCompra);
+    }
+
+    // User Menu
     const userIcon = document.getElementById('user-icon');
     if (userIcon) {
         userIcon.addEventListener('click', toggleUserDropdown);
-        userIcon.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            toggleUserDropdown();
-        });
     }
 
+    // Login
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) {
         loginBtn.addEventListener('click', showLoginModal);
-        loginBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            showLoginModal();
-        });
     }
 
     const closeLoginBtn = document.querySelector('.close');
     if (closeLoginBtn) {
         closeLoginBtn.addEventListener('click', hideLoginModal);
-        closeLoginBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            hideLoginModal();
-        });
     }
 
     const loginForm = document.getElementById('login-form');
@@ -125,21 +114,14 @@ function setupEventListeners() {
     const showRegisterBtn = document.getElementById('show-register');
     if (showRegisterBtn) {
         showRegisterBtn.addEventListener('click', showRegister);
-        showRegisterBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            showRegister(e);
-        });
     }
 
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', handleLogout);
-        logoutBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            handleLogout();
-        });
     }
 
+    // Adicionar ao carrinho
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
     if (addToCartButtons.length > 0) {
         addToCartButtons.forEach(button => {
@@ -149,28 +131,19 @@ function setupEventListeners() {
                 const productPrice = parseFloat(this.dataset.price);
                 addToCart(productId, productName, productPrice);
             });
-            
-            button.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                const productId = this.dataset.productId;
-                const productName = this.dataset.product;
-                const productPrice = parseFloat(this.dataset.price);
-                addToCart(productId, productName, productPrice);
-            });
         });
     }
+
 
     const checkoutClose = document.querySelector('#checkout-modal .close');
     if (checkoutClose) {
         checkoutClose.addEventListener('click', closeCheckout);
-        checkoutClose.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            closeCheckout();
-        });
     }
 
+    // Auto-complete de CEP
     setupCEPAutoComplete();
 
+   
     window.addEventListener('click', function(event) {
         if (cartModal && event.target === cartModal) {
             toggleCart();
@@ -192,55 +165,7 @@ function setupEventListeners() {
     });
 }
 
-function setupCheckoutButton() {
-    const checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn) {
-        console.log('Configurando botão Finalizar Compra para mobile...');
-        
-        checkoutBtn.replaceWith(checkoutBtn.cloneNode(true));
-        
-        const newCheckoutBtn = document.getElementById('checkout-btn');
-        
-        newCheckoutBtn.addEventListener('click', handleFinalizarCompra);
-        newCheckoutBtn.addEventListener('touchend', handleFinalizarCompra);
-        
-        console.log('Botão Finalizar Compra configurado com sucesso!');
-    }
-}
-
-function handleFinalizarCompra(e) {
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-    }
-    
-    console.log('📍 Botão Finalizar Compra acionado (mobile fix)');
-    finalizarCompra();
-}
-
-function finalizarCompra() {
-    console.log('📍 Função finalizarCompra executada');
-    
-    if (cart.length === 0) {
-        alert('Seu carrinho está vazio!');
-        return;
-    }
-    
-    if (!currentUser) {
-        alert('Por favor, faça login para finalizar a compra!');
-        showLoginModal();
-        toggleCart(); 
-        return;
-    }
-    
-    toggleCart();
-    
-    setTimeout(() => {
-        showCheckoutModal();
-        console.log('✅ Checkout modal aberto com sucesso!');
-    }, 300);
-}
+// Sistema de Carrinho
 function addToCart(productId, productName, productPrice) {
     const existingItem = cart.find(item => item.id === productId);
     
@@ -317,15 +242,13 @@ function updateCartModal() {
                     <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
                     <span>${item.quantity}</span>
                     <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
-                    <button onclick="removeFromCart('${item.id}')" style="margin-left: 10px; color: red; background: none; border: none; cursor: pointer; font-size: 18px;">🗑️</button>
+                    <button onclick="removeFromCart('${item.id}')" style="margin-left: 10px; color: red;">🗑️</button>
                 </div>
             </div>
         `;
     }).join('');
     
     cartTotal.textContent = total.toFixed(2);
-    
-    setTimeout(setupCheckoutButton, 100);
 }
 
 function toggleCart() {
@@ -343,6 +266,7 @@ function saveCart() {
     localStorage.setItem('cart', JSON.stringify(cart));
 }
 
+// Sistema de Login/Usuário
 function showLoginModal() {
     if (loginModal) {
         loginModal.style.display = 'block';
@@ -440,6 +364,22 @@ function updateUserInterface() {
     if (logoutBtn) logoutBtn.style.display = currentUser ? 'block' : 'none';
     if (myOrdersBtn) myOrdersBtn.style.display = currentUser ? 'block' : 'none';
     if (myAddressesBtn) myAddressesBtn.style.display = currentUser ? 'block' : 'none';
+}
+
+// Sistema de Checkout
+function finalizarCompra() {
+    if (cart.length === 0) {
+        alert('Seu carrinho está vazio!');
+        return;
+    }
+    
+    if (!currentUser) {
+        alert('Por favor, faça login para finalizar a compra!');
+        showLoginModal();
+        return;
+    }
+    
+    showCheckoutModal();
 }
 
 function showCheckoutModal() {
@@ -655,6 +595,7 @@ function setupCEPAutoComplete() {
     }
 }
 
+// Utilitários
 function showNotification(message) {
     const notification = document.createElement('div');
     notification.style.cssText = `
@@ -679,32 +620,80 @@ function showNotification(message) {
     }, 3000);
 }
 
-function mobileDebug() {
-    console.log('🛠️ Debug mobile ativado');
-    
-    const checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('touchstart', function(e) {
-            console.log('📱 Touchstart no botão Finalizar Compra');
-        });
-        
-        checkoutBtn.addEventListener('touchend', function(e) {
-            console.log('📱 Touchend no botão Finalizar Compra');
-        });
-        
-        checkoutBtn.addEventListener('click', function(e) {
-            console.log('🖱️ Click no botão Finalizar Compra');
-        });
-    }
-}
-
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
     }
+    
+    .cart-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        right: 0;
+        top: 0;
+        width: 100%;
+        max-width: 400px;
+        height: 100%;
+        background: white;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        overflow-y: auto;
+    }
+    
+    .cart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .cart-items {
+        padding: 20px;
+    }
+    
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .cart-item-info {
+        flex: 1;
+    }
+    
+    .cart-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .quantity-btn {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    
+    .cart-total {
+        padding: 20px;
+        border-top: 1px solid #eee;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+    
+    .cart-footer {
+        padding: 20px;
+    }
 `;
 document.head.appendChild(style);
 
-console.log('✅ UNIPETS - Sistema carregado com correções para mobile!');
+// Debug
+console.log('Sistema UNIPETS carregado com sucesso!');
+console.log('Cart:', cart);
+console.log('Current User:', currentUser);
