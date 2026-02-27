@@ -32,12 +32,10 @@
             </nav>
 
             <div class="header-actions">
-                <button class="search-btn" aria-label="Pesquisar" id="search-btn">
+                <button class="search-btn" aria-label="Pesquisar">
                     <img width="32" height="32" src="https://img.icons8.com/ios-filled/50/search--v1.png"
                         alt="Pesquisar" />
                 </button>
-                <input type="text" id="search-input" placeholder="Buscar produtos..."
-                    style="display:none; padding:8px; font-size:14px; border-radius:5px;">
 
                 <button class="cart-btn" id="cart-icon" aria-label="Carrinho de compras">
                     <img width="32" height="32" src="https://img.icons8.com/pastel-glyph/64/shopping-cart--v2.png"
@@ -45,30 +43,6 @@
                     <span id="cart-counter" aria-live="polite">0</span>
                 </button>
 
-                <div id="register-modal" class="modal">
-                    <div class="modal-content">
-                        <span class="close" id="close-register">&times;</span>
-                        <h2>Criar Conta</h2>
-                        <form id="register-form">
-                            <div class="form-group">
-                                <label>Nome:</label>
-                                <input type="text" id="reg-name" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Email:</label>
-                                <input type="email" id="reg-email" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Senha:</label>
-                                <input type="password" id="reg-password" required>
-                            </div>
-
-                            <button type="submit" class="btn-primary">Cadastrar</button>
-                        </form>
-                    </div>
-                </div>
                 <div class="user-menu">
                     <button class="user-btn" id="user-icon" aria-label="Área do usuário">
                         <div class="user-info">
@@ -105,7 +79,7 @@
             <h2 id="about-heading" class="title">Sobre <span>Nós</span></h2>
             <div class="row">
                 <div class="container-image">
-                    <img height="520" width="500" src="https://filipesep.github.io/loja-pet/img/thor2.png"
+                    <img height="520" width="500" src="https://filipesep.github.io/loja-pet/img/special.png"
                         alt="Nosso mascote Thor">
                 </div>
                 <div class="content">
@@ -280,12 +254,9 @@
             <div class="social-media">
                 <h3>Siga-nos</h3>
                 <div class="share">
-                    <a href="https://www.instagram.com/unipets.oficial?igsh=NDNzMDhvYmppMDM0&utm_source=qr"
-                    aria-label="Instagram"
-                    target="_blank"
-                    rel="noopener noreferrer">
-                    <img width="50" height="50" src="https://img.icons8.com/color/48/instagram-new--v1.png"
-                        alt="Instagram" />
+                    <a href="#" aria-label="Instagram">
+                        <img width="50" height="50" src="https://img.icons8.com/color/48/instagram-new--v1.png"
+                            alt="Instagram" />
                     </a>
                     <a href="#" aria-label="Twitter">
                         <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/twitterx--v1.png"
@@ -316,7 +287,7 @@
                 <div class="step" data-step="4">Confirmação</div>
             </div>
 
-
+        
             <div class="checkout-step" id="step-1">
                 <h3>Informe seu endereço</h3>
                 <form id="address-form">
@@ -396,63 +367,18 @@
                 </div>
             </div>
 
-
+    
             <div class="checkout-step" id="step-3" style="display: none;">
                 <h3>Método de Pagamento</h3>
                 <div class="payment-methods">
-                    <!-- CAMPOS DO CARTÃO DE CRÉDITO -->
                     <label class="payment-option">
                         <input type="radio" name="payment" value="credit" checked>
                         <span>Cartão de Crédito</span>
                     </label>
-                    <div id="credit-card-fields" style="display: block; margin-top: 20px;">
-
-                        <h4>Dados do Cartão</h4>
-
-                        <div class="form-group">
-                            <label>Nome no Cartão</label>
-                            <input type="text" id="card-name" placeholder="Como está no cartão">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Número do Cartão</label>
-                            <input type="text" id="card-number" maxlength="19" placeholder="0000 0000 0000 0000">
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Validade (Mês)</label>
-                                <select id="card-month">
-                                    <option value="">Mês</option>
-                                    <option>01</option>
-                                    <option>02</option>
-                                    <option>03</option>
-                                    <option>04</option>
-                                    <option>05</option>
-                                    <option>06</option>
-                                    <option>07</option>
-                                    <option>08</option>
-                                    <option>09</option>
-                                    <option>10</option>
-                                    <option>11</option>
-                                    <option>12</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Validade (Ano)</label>
-                                <select id="card-year">
-                                    <option value="">Ano</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>CVV</label>
-                            <input type="text" id="card-cvv" maxlength="4" placeholder="123">
-                        </div>
-
-                    </div>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="debit">
+                        <span>Cartão de Débito</span>
+                    </label>
                     <label class="payment-option">
                         <input type="radio" name="payment" value="pix">
                         <span>PIX</span>
@@ -485,7 +411,7 @@
                 </div>
             </div>
 
-
+    
             <div class="checkout-step" id="step-4" style="display: none;">
                 <div class="confirmation">
                     <div class="success-icon">✓</div>
