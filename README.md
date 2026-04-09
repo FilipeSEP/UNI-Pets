@@ -24,7 +24,5 @@ During the development of UNI-Pets, I improved my skills in:
 - Implementing **Data Persistence** without complex databases (using browser storage).
 - Designing **Responsive Layouts** from scratch using modern CSS techniques.
 
-## 📂 How to Run
+https://filipesep.github.io/UNI-Pets/
 
-1. Clone the repository: `git clone https://github.com/YOUR_USERNAME/uni-pets.git`
-2. Open `index.html` in your browser.
