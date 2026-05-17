@@ -32,12 +32,19 @@ const produtos = [
     { id: 17, nome: "Tapete Confortável", preco: 59.90, categoria: "camas", imagem: "tapete.jpg", descricao: "Tapete antiderrapante" },
     
     // HIGIENE
-    { id: 7, nome: "Kit Guia e Coleira Vermelha", preco: 66.99, categoria: "higiene", imagem: "guia.jpg", descricao: "Kit completo para passeios" },
     { id: 8, nome: "Sanitário de Luxo para Cães", preco: 209.99, categoria: "higiene", imagem: "sanitario.jpg", descricao: "Sanitário prático e higiênico" },
     { id: 18, nome: "Shampoo Antipulgas - 500ml", preco: 45.90, categoria: "higiene", imagem: "shampoo.jpg", descricao: "Protege contra pulgas e carrapatos" },
     { id: 19, nome: "Escova de Pelos", preco: 29.90, categoria: "higiene", imagem: "escova.jpg", descricao: "Escova remove pelos mortos" },
     { id: 20, nome: "Tapete Higiênico - 30 unidades", preco: 79.90, categoria: "higiene", imagem: "tapete_higienico.jpg", descricao: "Absorve xixi e previne vazamentos" },
-    { id: 21, nome: "Cortador de Unhas", preco: 35.90, categoria: "higiene", imagem: "cortador.jpg", descricao: "Cortador de unhas profissional" }
+    { id: 21, nome: "Cortador de Unhas", preco: 35.90, categoria: "higiene", imagem: "cortador.jpg", descricao: "Cortador de unhas profissional" },
+
+    // ACESSÓRIOS
+    { id: 7, nome: "Kit Guia e Coleira Vermelha", preco: 66.99, categoria: "higiene", imagem: "guia.jpg", descricao: "Kit completo para passeios" },
+    { id: 23, nome: "Peitoral Ajustável", preco: 79.90, categoria: "acessorios", imagem: "peitoral.jpg", descricao: "Peitoral acolchoado para passeios" },
+    { id: 24, nome: "Roupinha de Frio", preco: 89.90, categoria: "acessorios", imagem: "roupinha.jpg", descricao: "Moletom confortável para dias frios" },
+    { id: 25, nome: "Identificador de Coleira", preco: 29.90, categoria: "acessorios", imagem: "identificador.jpg", descricao: "Placa de identificação com nome e telefone" },
+    { id: 26, nome: "Focinheira", preco: 59.90, categoria: "acessorios", imagem: "focinheira.jpg", descricao: "Focinheira ajustável para raças médias" },
+    { id: 27, nome: "Bebedouro Portátil", preco: 49.90, categoria: "acessorios", imagem: "bebedouro.jpg", descricao: "Para passeios e viagens" }
 ];
 
 // ========== ELEMENTOS DO DOM ==========
