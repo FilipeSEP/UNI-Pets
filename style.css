@@ -964,6 +964,8 @@ section {
 
 /* ========== CORREÇÕES DE TEXTO E LAYOUT ========== */
 
+/* ========== CORREÇÕES DE TEXTO E LAYOUT ========== */
+
 /* Garante que os cards tenham tamanho adequado */
 .box {
     min-width: 220px;
@@ -1029,4 +1031,88 @@ section {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
     justify-items: center;
+}
+
+/* ========== SEÇÃO DE AVALIAÇÕES ========== */
+.review {
+    background: #f8f9fa;
+    padding: 5rem 5%;
+}
+
+.review .title {
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 4rem;
+    color: #333;
+}
+
+.review .title span {
+    color: #ff6b6b;
+}
+
+.review-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.review-box {
+    background: white;
+    border-radius: 10px;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.review-box:hover {
+    transform: translateY(-5px);
+}
+
+.review-box img[alt=""] {
+    width: 50px;
+    margin-bottom: 2rem;
+}
+
+.review-box blockquote p {
+    font-size: 1.6rem;
+    color: #666;
+    margin-bottom: 2rem;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+.review-box .user {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    object-fit: cover;
+}
+
+.review-box h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.review-box span {
+    font-size: 1.4rem;
+    color: #888;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.review-box .stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-top: 1rem;
+}
+
+.review-box .stars img {
+    width: 20px !important;
+    height: 20px !important;
 }

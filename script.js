@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSearch();
 });
 
-// ========== FILTROS POR CATEGORIA ==========
+// ========== FILTROS POR CATEGORIA (CORRIGIDO) ==========
 function setupCategoryFilters() {
     const botoes = document.querySelectorAll('.cat-btn');
-    const produtos = document.querySelectorAll('.box');
+    const produtos = document.querySelectorAll('.menu .box'); // ← SÓ PRODUTOS!
 
     if (!botoes.length || !produtos.length) {
         console.warn('Botões ou produtos não encontrados');
@@ -70,7 +70,7 @@ function setupSearch() {
         
         searchInput.addEventListener('keyup', (e) => {
             const termo = e.target.value.toLowerCase();
-            const produtos = document.querySelectorAll('.box');
+            const produtos = document.querySelectorAll('.menu .box'); // ← SÓ PRODUTOS!
             
             produtos.forEach(produto => {
                 const nome = produto.querySelector('h3').innerText.toLowerCase();
@@ -85,7 +85,7 @@ function setupSearch() {
 }
 
 function mostrarTodosProdutos() {
-    const produtos = document.querySelectorAll('.box');
+    const produtos = document.querySelectorAll('.menu .box'); // ← SÓ PRODUTOS!
     produtos.forEach(produto => {
         produto.style.display = 'flex';
     });
@@ -764,6 +764,74 @@ style.textContent = `
     @keyframes slideIn {
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
+    }
+    
+    /* Estilos das avaliações */
+    .review-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 3rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .review-box {
+        background: white;
+        border-radius: 10px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    
+    .review-box:hover {
+        transform: translateY(-5px);
+    }
+    
+    .review-box img[alt=""] {
+        width: 50px;
+        margin-bottom: 2rem;
+    }
+    
+    .review-box blockquote p {
+        font-size: 1.6rem;
+        color: #666;
+        margin-bottom: 2rem;
+        font-style: italic;
+        line-height: 1.5;
+    }
+    
+    .review-box .user {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+        object-fit: cover;
+    }
+    
+    .review-box h3 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .review-box span {
+        font-size: 1.4rem;
+        color: #888;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .review-box .stars {
+        display: flex;
+        justify-content: center;
+        gap: 0.3rem;
+        margin-top: 1rem;
+    }
+    
+    .review-box .stars img {
+        width: 20px !important;
+        height: 20px !important;
     }
 `;
 document.head.appendChild(style);
