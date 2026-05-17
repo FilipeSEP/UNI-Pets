@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="UNIPETS - Loja especializada em produtos de alta qualidade para seu pet. Rações, brinquedos, acessórios e muito mais.">
-    <meta name="keywords" content="pets, ração, animais, cães, gatos, pet shop">
+    <meta name="keywords" content="pets, ração, animais, cães, gatos, pet shop, convênio pet">
     <meta name="author" content="UNIPETS">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,14 +28,17 @@
                 <a href="#home">HOME</a>
                 <a href="#about">SOBRE</a>
                 <a href="#menu">PRODUTOS</a>
+                <a href="#plans">CONVÊNIO</a>
                 <a href="#contact">CONTATOS</a>
             </nav>
 
             <div class="header-actions">
-                <button class="search-btn" aria-label="Pesquisar">
+                <button class="search-btn" id="search-btn" aria-label="Pesquisar">
                     <img width="32" height="32" src="https://img.icons8.com/ios-filled/50/search--v1.png"
                         alt="Pesquisar" />
                 </button>
+                <input type="text" id="search-input" placeholder="Buscar produtos..."
+                    style="display:none; padding:8px; font-size:14px; border-radius:5px;">
 
                 <button class="cart-btn" id="cart-icon" aria-label="Carrinho de compras">
                     <img width="32" height="32" src="https://img.icons8.com/pastel-glyph/64/shopping-cart--v2.png"
@@ -52,9 +55,10 @@
                     </button>
                     <div class="user-dropdown" id="user-dropdown">
                         <span class="user-greeting" id="user-greeting">Olá, Visitante!</span>
-                        <button id="login-btn" class="btn-primary">Fazer Login / Cadastrar</button>
+                        <button id="login-btn" class="btn-primary">Fazer Login</button>
+                        <button id="cadastro-btn" class="btn-secondary">Criar Conta</button>
                         <button id="my-orders-btn" style="display: none;">Meus Pedidos</button>
-                        <button id="my-addresses-btn" style="display: none;">Meus Endereços</button>
+                        <button id="my-plan-btn" style="display: none;">Meu Plano</button>
                         <button id="logout-btn" style="display: none;" class="btn-secondary">Sair da Conta</button>
                     </div>
                 </div>
@@ -79,128 +83,278 @@
             <h2 id="about-heading" class="title">Sobre <span>Nós</span></h2>
             <div class="row">
                 <div class="container-image">
-                    <img height="520" width="500" src="https://filipesep.github.io/loja-pet/img/special.png"
+                    <img height="520" width="500" src="https://filipesep.github.io/loja-pet/img/thor2.png"
                         alt="Nosso mascote Thor">
                 </div>
                 <div class="content">
                     <h3>O Que Faz Nossa Loja Especial</h3>
                     <p>Nossa missão é mais do que vender produtos: é garantir que todos os 'filhos de patas' tenham
-                        acesso
-                        ao que há de melhor para uma vida longa, saudável e feliz, e apoiar os tutores nessa jornada.
-                    </p>
+                        acesso ao que há de melhor para uma vida longa, saudável e feliz, e apoiar os tutores nessa
+                        jornada.</p>
                     <a href="#about-details" class="btn">Saiba Mais</a>
                 </div>
             </div>
         </section>
 
+        <!-- SEÇÃO DE PRODUTOS COM FILTRO -->
         <section class="menu" id="menu" aria-labelledby="products-heading">
-            <h2 id="products-heading" class="title">Produtos</h2>
+            <h2 id="products-heading" class="title">Nossos <span>Produtos</span></h2>
 
-            <div class="box-container">
-                <article class="box" data-product-id="1">
+            <!-- Botões de categoria -->
+            <div class="category-buttons">
+                <button class="cat-btn active" data-cat="todos">🍖 Todos</button>
+                <button class="cat-btn" data-cat="alimentos">🍖 Alimentos</button>
+                <button class="cat-btn" data-cat="brinquedos">🎾 Brinquedos</button>
+                <button class="cat-btn" data-cat="camas">🛏️ Camas</button>
+                <button class="cat-btn" data-cat="higiene">🧼 Higiene</button>
+                <button class="cat-btn" data-cat="acessorios">🎀 Acessórios</button>
+            </div>
+
+            <div class="box-container" id="produtos-container">
+                <!-- ALIMENTOS -->
+                <article class="box" data-categoria="alimentos">
                     <img width="250" src="https://filipesep.github.io/loja-pet/img/caoadulto.png"
                         alt="Ração para Cães Adultos - 10kg">
-                    <h3>Ração para Cães Adultos - 10kg</h3>
+                    <h3>Ração Premium para Cães Adultos - 10kg</h3>
                     <div class="price">R$ 149,99</div>
-                    <button class="btn add-to-cart" data-product-id="1" data-product="Ração para Cães Adultos"
-                        data-price="149.99">
+                    <button class="btn add-to-cart" data-product-id="1"
+                        data-product="Ração Premium para Cães Adultos - 10kg" data-price="149.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
 
-                <article class="box" data-product-id="2">
+                <article class="box" data-categoria="alimentos">
                     <img width="250" src="https://filipesep.github.io/loja-pet/img/caofilhote.png"
                         alt="Ração para Cães Filhotes - 10kg">
                     <h3>Ração para Cães Filhotes - 10kg</h3>
                     <div class="price">R$ 109,99</div>
-                    <button class="btn add-to-cart" data-product-id="2" data-product="Ração para Cães Filhotes"
+                    <button class="btn add-to-cart" data-product-id="2" data-product="Ração para Cães Filhotes - 10kg"
                         data-price="109.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
 
-                <article class="box" data-product-id="3">
+                <article class="box" data-categoria="alimentos">
                     <img width="250" src="https://filipesep.github.io/loja-pet/img/gatoadulto.png"
                         alt="Ração para Gatos Adultos - 10kg">
-                    <h3>Ração para Gatos Adultos - 10kg</h3>
+                    <h3>Ração Premium para Gatos Adultos - 10kg</h3>
                     <div class="price">R$ 169,99</div>
-                    <button class="btn add-to-cart" data-product-id="3" data-product="Ração para Gatos Adultos"
-                        data-price="169.99">
+                    <button class="btn add-to-cart" data-product-id="3"
+                        data-product="Ração Premium para Gatos Adultos - 10kg" data-price="169.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
 
-                <article class="box" data-product-id="4">
+                <article class="box" data-categoria="alimentos">
                     <img width="250" src="https://filipesep.github.io/loja-pet/img/gatof.png"
                         alt="Ração para Gatos Filhotes - 10kg">
                     <h3>Ração para Gatos Filhotes - 10kg</h3>
                     <div class="price">R$ 119,99</div>
-                    <button class="btn add-to-cart" data-product-id="4" data-product="Ração para Gatos Filhotes"
+                    <button class="btn add-to-cart" data-product-id="4" data-product="Ração para Gatos Filhotes - 10kg"
                         data-price="119.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
 
-                <article class="box" data-product-id="5">
+                <article class="box" data-categoria="alimentos">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/sache.png"
+                        alt="Sache de Salmão e Atum para gatos">
+                    <h3>Sache de Salmão e Atum para gatos</h3>
+                    <div class="price">R$ 39,99</div>
+                    <button class="btn add-to-cart" data-product-id="27" data-product="Sache de Salmão e Atum para gatos"
+                        data-price="39.99">
+                        Adicionar ao Carrinho
+                    </button>
+                </article>
+
+                <article class="box" data-categoria="alimentos">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/sache.png"
+                        alt="Petisco de Frango para cães">
+                    <h3>Petisco de Frango para cães</h3>
+                    <div class="price">R$ 49,99</div>
+                    <button class="btn add-to-cart" data-product-id="26" data-product="Petisco de Frango para cães"
+                        data-price="49.99">
+                        Adicionar ao Carrinho
+                    </button>
+                </article>
+
+                <!-- BRINQUEDOS -->
+                <article class="box" data-categoria="brinquedos">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/mordedor.png"
+                        alt="Mordedor em forma de osso aromatizado de bacon"
+                        onerror="this.src='https://via.placeholder.com/250x200/ff6b6b/ffffff?text=Mordedor'">
+                    <h3>Mordedor Aromatizado de Bacon - Tamanho M</h3>
+                    <div class="price">R$ 29,90</div>
+                    <button class="btn add-to-cart" data-product-id="11" data-product="Mordedor Aromatizado de Bacon"
+                        data-price="29.90">
+                        Adicionar ao Carrinho
+                    </button>
+                </article>
+
+                <article class="box" data-categoria="brinquedos">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/bolinha.png"
+                        alt="Bolinha Espinho azul">
+                    <h3>Bolinha Espinho</h3>
+                    <div class="price">R$ 15,90</div>
+                    <button class="btn add-to-cart" data-product-id="12" data-product="Bolinha Espinho"
+                        data-price="15.90">
+                        Adicionar ao Carrinho
+                    </button>
+                </article>
+
+                <article class="box" data-categoria="brinquedos">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/pelucia.png"
+                        alt="Pelúcia Macia - Pata Amarelo">
+                    <h3>Pelúcia Macia - Pato</h3>
+                    <div class="price">R$ 39,90</div>
+                    <button class="btn add-to-cart" data-product-id="14" data-product="Pelúcia Macia - Pato"
+                        data-price="39.90">
+                        Adicionar ao Carrinho
+                    </button>
+                </article>
+
+                <!-- CAMAS -->
+                <article class="box" data-categoria="camas">
                     <img width="250" src="https://filipesep.github.io/loja-pet/img/EGG.jpg" alt="Cama cinza">
-                    <h3>Cama cinza - TAM EGG</h3>
+                    <h3>Cama Cinza - TAM EGG</h3>
                     <div class="price">R$ 329,99</div>
-                    <button class="btn add-to-cart" data-product-id="5" data-product="Cama grande, cor cinza"
+                    <button class="btn add-to-cart" data-product-id="5" data-product="Cama Cinza - TAM EGG"
                         data-price="329.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
 
-                <article class="box" data-product-id="6">
+                <article class="box" data-categoria="camas">
                     <img width="250" src="https://filipesep.github.io/loja-pet/img/camanuvem.jpg"
-                        alt="Cama retangular rosa">
+                        alt="Cama Nuvem Brigadeiro">
                     <h3>Cama Nuvem Brigadeiro - TAM M</h3>
                     <div class="price">R$ 129,99</div>
-                    <button class="btn add-to-cart" data-product-id="6" data-product="Cama M, cor rosa"
+                    <button class="btn add-to-cart" data-product-id="6" data-product="Cama Nuvem Brigadeiro - TAM M"
                         data-price="129.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
 
-                <article class="box" data-product-id="7">
-                    <img width="250" src="https://filipesep.github.io/loja-pet/img/guia.jpg" alt="guia da cor vermelha">
-                    <h3>Kit guia e coleira vermelha - TAM G</h3>
-                    <div class="price">R$ 66,99</div>
-                    <button class="btn add-to-cart" data-product-id="7" data-product="kit de guia vermelha"
-                        data-price="66,99">
+                <article class="box" data-categoria="higiene">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/sanitario.jpg"
+                        alt="Sanitário de luxo">
+                    <h3>Sanitário de Luxo para Cães Machos</h3>
+                    <div class="price">R$ 209,99</div>
+                    <button class="btn add-to-cart" data-product-id="8" data-product="Sanitário de Luxo para Cães"
+                        data-price="209.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
-                <article class="box" data-product-id="8">
-                    <img width="250" src="https://filipesep.github.io/loja-pet/img/sanitario.jpg"
-                        alt="sanitário para caes machos">
-                    <h3>Sanitário de luxo para Cães machos</h3>
-                    <div class="price">R$ 209,99</div>
-                    <button class="btn add-to-cart" data-product-id="8" data-product="Sanitário de luxo"
-                        data-price="209.99">
+
+                <article class="box" data-categoria="higiene">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/shampoo.png" alt="Shampoo para Cães">
+                    <h3>Shampoo para Cães - Coco e Amendoas</h3>
+                    <div class="price">R$ 20,99</div>
+                    <button class="btn add-to-cart" data-product-id="25"
+                        data-product="Shampoo para Cães - Coco e Amendoas" data-price="20.99">
+                        Adicionar ao Carrinho
+                    </button>
+                </article>
+
+                <!-- ACESSÓRIOS -->
+                <article class="box" data-categoria="acessorios">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/coleira.png" alt="Coleira Antipulga"
+                        onerror="this.src='https://via.placeholder.com/250x200/ff6b6b/ffffff?text=Coleira'">
+                    <h3>Coleira Antipulga</h3>
+                    <div class="price">R$ 45,90</div>
+                    <button class="btn add-to-cart" data-product-id="22" data-product="Coleira Antipulga"
+                        data-price="45.90">
+                        Adicionar ao Carrinho
+                    </button>
+                </article>
+
+                <article class="box" data-categoria="acessorios">
+                    <img width="250" src="https://filipesep.github.io/loja-pet/img/roupinha.png" alt="Roupinha de Frio"
+                        onerror="this.src='https://via.placeholder.com/250x200/ff6b6b/ffffff?text=Roupinha'">
+                    <h3>Casaco de Moletom para Cães e Gatos - Preto</h3>
+                    <div class="price">R$ 89,90</div>
+                    <button class="btn add-to-cart" data-product-id="24"
+                        data-product="Casaco de Moletom para Cães e Gatos - Preto" data-price="89.90">
                         Adicionar ao Carrinho
                     </button>
                 </article>
             </div>
         </section>
 
+        <!-- SEÇÃO DE PLANOS/CONVÊNIO -->
+        <section class="plans" id="plans">
+            <h2 class="title">Planos <span>UNIPETS</span></h2>
+            <p class="disclaimer">
+                ⚠️ <strong>Aviso Importante:</strong> A UNIPETS atua apenas como intermediária.
+                Consultas médicas e procedimentos são de responsabilidade das clínicas parceiras.
+                A UNIPETS não se responsabiliza por diagnósticos ou tratamentos.
+            </p>
+
+            <div class="plans-container">
+                <div class="plan-card">
+                    <div class="plan-icon">🐾</div>
+                    <h3>Plano Básico</h3>
+                    <div class="plan-price">R$ 29,90 <span>/mês</span></div>
+                    <ul class="plan-benefits">
+                        <li>✅ 1 banho por mês</li>
+                        <li>✅ 10% desconto em produtos</li>
+                        <li>✅ Brinde de boas-vindas</li>
+                        <li>📞 Consultas com parceiros*</li>
+                    </ul>
+                    <button class="btn-plan" onclick="assinarPlano('basico')">Assinar Plano</button>
+                    <p class="plan-note">*Apenas descontos, não cobrimos consultas</p>
+                </div>
+
+                <div class="plan-card featured">
+                    <div class="popular-badge">MAIS POPULAR</div>
+                    <div class="plan-icon">🐕</div>
+                    <h3>Plano Premium</h3>
+                    <div class="plan-price">R$ 59,90 <span>/mês</span></div>
+                    <ul class="plan-benefits">
+                        <li>✅ 2 banhos por mês</li>
+                        <li>✅ 20% desconto em produtos</li>
+                        <li>✅ Brinde exclusivo</li>
+                        <li>✅ Prioridade no agendamento</li>
+                        <li>📞 Consultas com parceiros*</li>
+                    </ul>
+                    <button class="btn-plan" onclick="assinarPlano('premium')">Assinar Plano</button>
+                    <p class="plan-note">*Apenas descontos, não cobrimos consultas</p>
+                </div>
+
+                <div class="plan-card">
+                    <div class="plan-icon">🐱</div>
+                    <h3>Plano VIP</h3>
+                    <div class="plan-price">R$ 99,90 <span>/mês</span></div>
+                    <ul class="plan-benefits">
+                        <li>✅ Banhos ilimitados</li>
+                        <li>✅ 30% desconto em produtos</li>
+                        <li>✅ Kit premium de boas-vindas</li>
+                        <li>✅ Atendimento prioritário</li>
+                        <li>✅ 1 corte de graça por mês</li>
+                        <li>📞 Consultas com parceiros*</li>
+                    </ul>
+                    <button class="btn-plan" onclick="assinarPlano('vip')">Assinar Plano</button>
+                    <p class="plan-note">*Apenas descontos, não cobrimos consultas</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO DE AVALIAÇÕES -->
         <section class="review" id="review" aria-labelledby="reviews-heading">
-            <h2 id="reviews-heading" class="title">Nossos <span>Clientes</span></h2>
+            <h2 id="reviews-heading" class="title">O que dizem <span>nossos clientes</span></h2>
             <div class="box-container">
                 <article class="box">
                     <img src="https://filipesep.github.io/loja-pet/img/aspas.png" alt="" aria-hidden="true">
                     <blockquote>
                         <p>O site da UNIPETS é simples, objetivo e bem organizado, o que facilitou significativamente o
                             processo de compra. As informações dos produtos são claras. A finalização do pedido foi
-                            eficiente e
-                            sem contratempos. Certamente voltarei a utilizar a plataforma para minhas próximas compras.
-                        </p>
+                            eficiente e sem contratempos. Certamente voltarei a utilizar a plataforma.</p>
                     </blockquote>
                     <img src="https://filipesep.github.io/loja-pet/img/cliente1.png" alt="Foto do cliente Jorge Campos"
                         class="user">
                     <h3>Jorge Campos</h3>
                     <span>Cliente Satisfeito</span>
-                    <div class="stars" aria-label="Avaliação: 4.5 estrelas">
+                    <div class="stars">
                         <img width="20" height="20" src="https://img.icons8.com/ios-filled/50/star--v1.png"
                             alt="Estrela" />
                         <img width="20" height="20" src="https://img.icons8.com/ios-filled/50/star--v1.png"
@@ -217,16 +371,15 @@
                     <img src="https://filipesep.github.io/loja-pet/img/aspas.png" alt="" aria-hidden="true">
                     <blockquote>
                         <p> Gente, amei! O site da UNIPETS é super simples, informativo e muito bem organizado. Sério,
-                            facilitou demais
-                            a vida na hora de fazer as compras. A finalização do pedido foi rapidinha, sem estresse nem
-                            complicações (e isso vale ouro!). Com certeza vou virar cliente VIP! Excelente experiência!
-                        </p>
+                            facilitou demais a vida na hora de fazer as compras. A finalização do pedido foi rapidinha,
+                            sem estresse.
+                            Com certeza vou virar cliente VIP!</p>
                     </blockquote>
                     <img src="https://filipesep.github.io/loja-pet/img/cliente2.png" alt="Foto da cliente Laura Almeida"
                         class="user">
                     <h3>Laura Almeida</h3>
                     <span>Cliente Satisfeita</span>
-                    <div class="stars" aria-label="Avaliação: 4.5 estrelas">
+                    <div class="stars">
                         <img width="20" height="20" src="https://img.icons8.com/ios-filled/50/star--v1.png"
                             alt="Estrela" />
                         <img width="20" height="20" src="https://img.icons8.com/ios-filled/50/star--v1.png"
@@ -249,12 +402,13 @@
                 <h3>Contato</h3>
                 <p>Email: contato@unipets.com.br</p>
                 <p>Telefone: (11) 1234-5678</p>
+                <p>📞 Central de Atendimento 24h</p>
             </div>
 
             <div class="social-media">
                 <h3>Siga-nos</h3>
                 <div class="share">
-                    <a href="#" aria-label="Instagram">
+                    <a href="#" aria-label="Instagram" target="_blank">
                         <img width="50" height="50" src="https://img.icons8.com/color/48/instagram-new--v1.png"
                             alt="Instagram" />
                     </a>
@@ -269,17 +423,71 @@
                 </div>
             </div>
         </div>
-
         <div class="copyright">
             <p>&copy; 2025 UNIPETS. Todos os direitos reservados.</p>
         </div>
     </footer>
 
+    <!-- MODAIS -->
+    <div id="cart-modal" class="modal cart-modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-cart">&times;</span>
+            <h2>Seu Carrinho</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <strong>Total:</strong> R$ <span id="cart-total">0,00</span>
+            </div>
+            <button id="checkout-btn" class="btn-primary">Finalizar Compra</button>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+            <p style="text-align: center; margin-top: 15px;">
+                Não tem conta? <a href="#" id="show-register-link">Cadastre-se</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Criar Conta</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>Nome:</label>
+                    <input type="text" id="reg-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="reg-email" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="reg-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
     <div id="checkout-modal" class="modal">
         <div class="modal-content checkout-content">
             <span class="close">&times;</span>
             <h2>Finalizar Compra</h2>
-
             <div class="checkout-steps">
                 <div class="step active" data-step="1">Endereço</div>
                 <div class="step" data-step="2">Frete</div>
@@ -287,7 +495,6 @@
                 <div class="step" data-step="4">Confirmação</div>
             </div>
 
-        
             <div class="checkout-step" id="step-1">
                 <h3>Informe seu endereço</h3>
                 <form id="address-form">
@@ -358,16 +565,13 @@
 
             <div class="checkout-step" id="step-2" style="display: none;">
                 <h3>Escolha a forma de entrega</h3>
-                <div id="shipping-options">
-
-                </div>
+                <div id="shipping-options"></div>
                 <div class="checkout-actions">
                     <button class="btn-secondary" onclick="prevStep(1)">Voltar</button>
                     <button class="btn-primary" onclick="nextStep(3)">Continuar</button>
                 </div>
             </div>
 
-    
             <div class="checkout-step" id="step-3" style="display: none;">
                 <h3>Método de Pagamento</h3>
                 <div class="payment-methods">
@@ -375,10 +579,48 @@
                         <input type="radio" name="payment" value="credit" checked>
                         <span>Cartão de Crédito</span>
                     </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment" value="debit">
-                        <span>Cartão de Débito</span>
-                    </label>
+                    <div id="credit-card-fields" style="display: block; margin-top: 20px;">
+                        <h4>Dados do Cartão</h4>
+                        <div class="form-group">
+                            <label>Nome no Cartão</label>
+                            <input type="text" id="card-name" placeholder="Como está no cartão">
+                        </div>
+                        <div class="form-group">
+                            <label>Número do Cartão</label>
+                            <input type="text" id="card-number" maxlength="19" placeholder="0000 0000 0000 0000">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Validade (Mês/Ano)</label>
+                                <select id="card-month">
+                                    <option>01</option>
+                                    <option>02</option>
+                                    <option>03</option>
+                                    <option>04</option>
+                                    <option>05</option>
+                                    <option>06</option>
+                                    <option>07</option>
+                                    <option>08</option>
+                                    <option>09</option>
+                                    <option>10</option>
+                                    <option>11</option>
+                                    <option>12</option>
+                                </select>
+                                <select id="card-year" style="margin-top: 5px;">
+                                    <option>2025</option>
+                                    <option>2026</option>
+                                    <option>2027</option>
+                                    <option>2028</option>
+                                    <option>2029</option>
+                                    <option>2030</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>CVV</label>
+                                <input type="text" id="card-cvv" maxlength="4" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
                     <label class="payment-option">
                         <input type="radio" name="payment" value="pix">
                         <span>PIX</span>
@@ -391,18 +633,9 @@
 
                 <div class="order-summary">
                     <h4>Resumo do Pedido</h4>
-                    <div class="summary-item">
-                        <span>Subtotal:</span>
-                        <span id="summary-subtotal">R$ 0,00</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Frete:</span>
-                        <span id="summary-frete">R$ 0,00</span>
-                    </div>
-                    <div class="summary-item total">
-                        <span>Total:</span>
-                        <span id="summary-total">R$ 0,00</span>
-                    </div>
+                    <div class="summary-item"><span>Subtotal:</span><span id="summary-subtotal">R$ 0,00</span></div>
+                    <div class="summary-item"><span>Frete:</span><span id="summary-frete">R$ 0,00</span></div>
+                    <div class="summary-item total"><span>Total:</span><span id="summary-total">R$ 0,00</span></div>
                 </div>
 
                 <div class="checkout-actions">
@@ -411,7 +644,6 @@
                 </div>
             </div>
 
-    
             <div class="checkout-step" id="step-4" style="display: none;">
                 <div class="confirmation">
                     <div class="success-icon">✓</div>
@@ -428,8 +660,7 @@
         </div>
     </div>
 
-    <script src="loja.js"></script>
-
+    <script src="script.js"></script>
 </body>
 
 </html>
