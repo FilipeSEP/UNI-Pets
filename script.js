@@ -22,31 +22,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== FILTROS POR CATEGORIA ==========
 function setupCategoryFilters() {
-    const buttons = document.querySelectorAll('.cat-btn');
-    const produtosContainer = document.getElementById('produtos-container');
-    
-    if (!produtosContainer) return;
-    
-    buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const categoria = btn.dataset.cat;
-            
+    const botoes = document.querySelectorAll('.cat-btn');
+    const produtos = document.querySelectorAll('.box');
+
+    if (!botoes.length || !produtos.length) {
+        console.warn('Botões ou produtos não encontrados');
+        return;
+    }
+
+    botoes.forEach(botao => {
+        botao.addEventListener('click', () => {
+            const categoriaSelecionada = botao.getAttribute('data-cat');
+
             // Atualiza classe ativa dos botões
-            buttons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
+            botoes.forEach(btn => btn.classList.remove('active'));
+            botao.classList.add('active');
+
             // Filtra os produtos
-            const produtos = document.querySelectorAll('.box');
             produtos.forEach(produto => {
-                if (categoria === 'todos') {
-                    produto.style.display = 'block';
+                const categoriaProduto = produto.getAttribute('data-categoria');
+                if (categoriaSelecionada === 'todos' || categoriaProduto === categoriaSelecionada) {
+                    produto.style.display = 'flex';
                 } else {
-                    const produtoCategoria = produto.dataset.categoria;
-                    if (produtoCategoria === categoria) {
-                        produto.style.display = 'block';
-                    } else {
-                        produto.style.display = 'none';
-                    }
+                    produto.style.display = 'none';
                 }
             });
         });
@@ -77,7 +75,7 @@ function setupSearch() {
             produtos.forEach(produto => {
                 const nome = produto.querySelector('h3').innerText.toLowerCase();
                 if (nome.includes(termo)) {
-                    produto.style.display = 'block';
+                    produto.style.display = 'flex';
                 } else {
                     produto.style.display = 'none';
                 }
@@ -89,10 +87,9 @@ function setupSearch() {
 function mostrarTodosProdutos() {
     const produtos = document.querySelectorAll('.box');
     produtos.forEach(produto => {
-        produto.style.display = 'block';
+        produto.style.display = 'flex';
     });
     
-    // Reseta os filtros de categoria também
     const buttons = document.querySelectorAll('.cat-btn');
     buttons.forEach(btn => {
         if (btn.dataset.cat === 'todos') {
@@ -105,13 +102,8 @@ function mostrarTodosProdutos() {
 
 // ========== MODAIS ==========
 function initializeModals() {
-    // Modal do Carrinho
     cartModal = document.getElementById('cart-modal');
-    
-    // Modal de Login
     loginModal = document.getElementById('login-modal');
-    
-    // Modal de Cadastro
     registerModal = document.getElementById('register-modal');
 }
 
@@ -600,7 +592,6 @@ function hideUserDropdown() {
 
 // ========== EVENTOS ==========
 function setupEventListeners() {
-    // Carrinho
     if (cartIcon) {
         cartIcon.addEventListener('click', toggleCart);
     }
@@ -615,13 +606,11 @@ function setupEventListeners() {
         checkoutBtn.addEventListener('click', finalizarCompra);
     }
     
-    // User Menu
     const userIcon = document.getElementById('user-icon');
     if (userIcon) {
         userIcon.addEventListener('click', toggleUserDropdown);
     }
     
-    // Login
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) {
         loginBtn.addEventListener('click', showLoginModal);
@@ -653,7 +642,6 @@ function setupEventListeners() {
         });
     }
     
-    // Fechar modais
     const closeBtns = document.querySelectorAll('.modal .close');
     closeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -664,7 +652,6 @@ function setupEventListeners() {
         });
     });
     
-    // Formulários
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
@@ -697,7 +684,6 @@ function setupEventListeners() {
         });
     }
     
-    // Fechar modais ao clicar fora
     window.addEventListener('click', (event) => {
         if (loginModal && event.target === loginModal) hideLoginModal();
         if (registerModal && event.target === registerModal) hideRegisterModal();
@@ -712,10 +698,7 @@ function setupEventListeners() {
         }
     });
     
-    // Atribuir eventos aos produtos
     atribuirEventosProdutos();
-    
-    // CEP auto-complete
     setupCEPAutoComplete();
 }
 
@@ -776,7 +759,6 @@ function showNotification(message) {
     }, 4000);
 }
 
-// Adicionar animação
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
