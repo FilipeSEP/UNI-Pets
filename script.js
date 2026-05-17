@@ -1,51 +1,9 @@
 // ========== CONFIGURAÇÃO ==========
-const API_URL = 'http://localhost:3000/api';
-
-// Estado global
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 let selectedShipping = null;
 let checkoutData = { address: null, shipping: null, payment: null };
 let currentUserPlan = JSON.parse(localStorage.getItem('userPlan')) || null;
-
-// ========== PRODUTOS ==========
-const produtos = [
-    // ALIMENTOS
-    { id: 1, nome: "Ração Premium para Cães Adultos - 10kg", preco: 149.99, categoria: "alimentos", imagem: "caoadulto.png", descricao: "Ração super premium para cães adultos" },
-    { id: 2, nome: "Ração para Cães Filhotes - 10kg", preco: 109.99, categoria: "alimentos", imagem: "caofilhote.png", descricao: "Nutrição completa para filhotes" },
-    { id: 3, nome: "Ração Premium para Gatos Adultos - 10kg", preco: 169.99, categoria: "alimentos", imagem: "gatoadulto.png", descricao: "Ração saborosa para gatos" },
-    { id: 4, nome: "Ração para Gatos Filhotes - 10kg", preco: 119.99, categoria: "alimentos", imagem: "gatof.png", descricao: "Especial para gatinhos em crescimento" },
-    { id: 9, nome: "Petisco Natural Frango - 500g", preco: 24.90, categoria: "alimentos", imagem: "petisco.jpg", descricao: "Petisco saudável e natural" },
-    { id: 10, nome: "Ração Úmida Sache - Carne", preco: 5.99, categoria: "alimentos", imagem: "sache.jpg", descricao: "Complemento alimentar saboroso" },
-    
-    // BRINQUEDOS
-    { id: 11, nome: "Mordedor de Corda - Tamanho G", preco: 29.90, categoria: "brinquedos", imagem: "mordedor.jpg", descricao: "Ideal para cães de porte médio/grande" },
-    { id: 12, nome: "Bolinha com Guizo", preco: 15.90, categoria: "brinquedos", imagem: "bolinha.jpg", descricao: "Bolinha colorida com som" },
-    { id: 13, nome: "Brinquedo Interativo Ocultar Petisco", preco: 49.90, categoria: "brinquedos", imagem: "interativo.jpg", descricao: "Estimula a inteligência do pet" },
-    { id: 14, nome: "Pelúcia Macia - Ursinho", preco: 39.90, categoria: "brinquedos", imagem: "pelucia.jpg", descricao: "Pelúcia resistente para brincadeiras" },
-    { id: 15, nome: "Frisbee para Cães", preco: 34.90, categoria: "brinquedos", imagem: "frisbee.jpg", descricao: "Para brincadeiras ao ar livre" },
-    
-    // CAMAS
-    { id: 5, nome: "Cama Cinza - TAM EGG", preco: 329.99, categoria: "camas", imagem: "EGG.jpg", descricao: "Cama super confortável formato ovo" },
-    { id: 6, nome: "Cama Nuvem Brigadeiro - TAM M", preco: 129.99, categoria: "camas", imagem: "camanuvem.jpg", descricao: "Cama macia e fofinha" },
-    { id: 16, nome: "Cama Redonda para Gatos", preco: 89.90, categoria: "camas", imagem: "cama_gato.jpg", descricao: "Cama acolchoada para gatos" },
-    { id: 17, nome: "Tapete Confortável", preco: 59.90, categoria: "camas", imagem: "tapete.jpg", descricao: "Tapete antiderrapante" },
-    
-    // HIGIENE
-    { id: 8, nome: "Sanitário de Luxo para Cães", preco: 209.99, categoria: "higiene", imagem: "sanitario.jpg", descricao: "Sanitário prático e higiênico" },
-    { id: 18, nome: "Shampoo Antipulgas - 500ml", preco: 45.90, categoria: "higiene", imagem: "shampoo.jpg", descricao: "Protege contra pulgas e carrapatos" },
-    { id: 19, nome: "Escova de Pelos", preco: 29.90, categoria: "higiene", imagem: "escova.jpg", descricao: "Escova remove pelos mortos" },
-    { id: 20, nome: "Tapete Higiênico - 30 unidades", preco: 79.90, categoria: "higiene", imagem: "tapete_higienico.jpg", descricao: "Absorve xixi e previne vazamentos" },
-    { id: 21, nome: "Cortador de Unhas", preco: 35.90, categoria: "higiene", imagem: "cortador.jpg", descricao: "Cortador de unhas profissional" },
-
-    // ACESSÓRIOS
-    { id: 7, nome: "Kit Guia e Coleira Vermelha", preco: 66.99, categoria: "higiene", imagem: "guia.jpg", descricao: "Kit completo para passeios" },
-    { id: 23, nome: "Peitoral Ajustável", preco: 79.90, categoria: "acessorios", imagem: "peitoral.jpg", descricao: "Peitoral acolchoado para passeios" },
-    { id: 24, nome: "Roupinha de Frio", preco: 89.90, categoria: "acessorios", imagem: "roupinha.jpg", descricao: "Moletom confortável para dias frios" },
-    { id: 25, nome: "Identificador de Coleira", preco: 29.90, categoria: "acessorios", imagem: "identificador.jpg", descricao: "Placa de identificação com nome e telefone" },
-    { id: 26, nome: "Focinheira", preco: 59.90, categoria: "acessorios", imagem: "focinheira.jpg", descricao: "Focinheira ajustável para raças médias" },
-    { id: 27, nome: "Bebedouro Portátil", preco: 49.90, categoria: "acessorios", imagem: "bebedouro.jpg", descricao: "Para passeios e viagens" }
-];
 
 // ========== ELEMENTOS DO DOM ==========
 const cartIcon = document.getElementById('cart-icon');
@@ -53,82 +11,108 @@ const cartCounter = document.getElementById('cart-counter');
 let cartModal, loginModal, registerModal;
 
 // ========== INICIALIZAÇÃO ==========
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     initializeModals();
-    renderizarProdutos();
     updateCartCounter();
     updateUserInterface();
     setupEventListeners();
     setupCategoryFilters();
-    setupCheckoutButton();
+    setupSearch();
 });
-
-// ========== RENDERIZAR PRODUTOS ==========
-function renderizarProdutos(categoria = 'todos') {
-    const container = document.getElementById('produtos-container');
-    if (!container) return;
-    
-    let produtosFiltrados = produtos;
-    if (categoria !== 'todos') {
-        produtosFiltrados = produtos.filter(p => p.categoria === categoria);
-    }
-    
-    if (produtosFiltrados.length === 0) {
-        container.innerHTML = '<div class="loading">Nenhum produto encontrado nesta categoria</div>';
-        return;
-    }
-    
-    container.innerHTML = produtosFiltrados.map(produto => `
-        <article class="box" data-product-id="${produto.id}" data-categoria="${produto.categoria}">
-            <img width="250" src="https://filipesep.github.io/loja-pet/img/${produto.imagem}" 
-                 alt="${produto.nome}"
-                 onerror="this.src='https://via.placeholder.com/250x200/ff6b6b/ffffff?text=UNIPETS'">
-            <h3>${produto.nome}</h3>
-            <div class="price">R$ ${produto.preco.toFixed(2)}</div>
-            <button class="btn add-to-cart" 
-                    data-product-id="${produto.id}"
-                    data-product="${produto.nome}" 
-                    data-price="${produto.preco}">
-                Adicionar ao Carrinho
-            </button>
-        </article>
-    `).join('');
-    
-    atribuirEventosProdutos();
-}
 
 // ========== FILTROS POR CATEGORIA ==========
 function setupCategoryFilters() {
     const buttons = document.querySelectorAll('.cat-btn');
+    const produtosContainer = document.getElementById('produtos-container');
+    
+    if (!produtosContainer) return;
+    
     buttons.forEach(btn => {
         btn.addEventListener('click', () => {
             const categoria = btn.dataset.cat;
             
+            // Atualiza classe ativa dos botões
             buttons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            renderizarProdutos(categoria);
+            // Filtra os produtos
+            const produtos = document.querySelectorAll('.box');
+            produtos.forEach(produto => {
+                if (categoria === 'todos') {
+                    produto.style.display = 'block';
+                } else {
+                    const produtoCategoria = produto.dataset.categoria;
+                    if (produtoCategoria === categoria) {
+                        produto.style.display = 'block';
+                    } else {
+                        produto.style.display = 'none';
+                    }
+                }
+            });
         });
     });
+}
+
+// ========== BUSCA ==========
+function setupSearch() {
+    const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('search-input');
     
-    // Filtro do header também
-    const selectFilter = document.getElementById('categoria-filter');
-    if (selectFilter) {
-        selectFilter.addEventListener('change', (e) => {
-            const categoria = e.target.value;
-            renderizarProdutos(categoria);
+    if (searchBtn && searchInput) {
+        searchBtn.addEventListener('click', () => {
+            if (searchInput.style.display === 'none') {
+                searchInput.style.display = 'block';
+                searchInput.focus();
+            } else {
+                searchInput.style.display = 'none';
+                searchInput.value = '';
+                mostrarTodosProdutos();
+            }
+        });
+        
+        searchInput.addEventListener('keyup', (e) => {
+            const termo = e.target.value.toLowerCase();
+            const produtos = document.querySelectorAll('.box');
             
-            // Atualiza também os botões visuais
-            const buttons = document.querySelectorAll('.cat-btn');
-            buttons.forEach(btn => {
-                if (btn.dataset.cat === categoria) {
-                    btn.classList.add('active');
+            produtos.forEach(produto => {
+                const nome = produto.querySelector('h3').innerText.toLowerCase();
+                if (nome.includes(termo)) {
+                    produto.style.display = 'block';
                 } else {
-                    btn.classList.remove('active');
+                    produto.style.display = 'none';
                 }
             });
         });
     }
+}
+
+function mostrarTodosProdutos() {
+    const produtos = document.querySelectorAll('.box');
+    produtos.forEach(produto => {
+        produto.style.display = 'block';
+    });
+    
+    // Reseta os filtros de categoria também
+    const buttons = document.querySelectorAll('.cat-btn');
+    buttons.forEach(btn => {
+        if (btn.dataset.cat === 'todos') {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// ========== MODAIS ==========
+function initializeModals() {
+    // Modal do Carrinho
+    cartModal = document.getElementById('cart-modal');
+    
+    // Modal de Login
+    loginModal = document.getElementById('login-modal');
+    
+    // Modal de Cadastro
+    registerModal = document.getElementById('register-modal');
 }
 
 // ========== SISTEMA DE CONVÊNIO ==========
@@ -160,27 +144,10 @@ window.assinarPlano = function(plano) {
     if (confirm(`Confirmar assinatura do Plano ${plano.toUpperCase()} por R$ ${preco}/mês?\n\nBenefícios: ${beneficios}\n\n*A UNIPETS não se responsabiliza por consultas médicas.`)) {
         currentUserPlan = { plano, preco, dataAssinatura: new Date().toISOString() };
         localStorage.setItem('userPlan', JSON.stringify(currentUserPlan));
-        
-        // Aplica desconto nos preços se for assinante
-        aplicarDescontoPlano();
-        
         alert(`✅ Assinatura realizada com sucesso!\n\nPlano ${plano.toUpperCase()} ativo.\nAproveite seus benefícios!`);
         updateUserInterface();
     }
 };
-
-function aplicarDescontoPlano() {
-    if (!currentUserPlan) return;
-    
-    let desconto = 0;
-    if (currentUserPlan.plano === 'basico') desconto = 0.1;
-    if (currentUserPlan.plano === 'premium') desconto = 0.2;
-    if (currentUserPlan.plano === 'vip') desconto = 0.3;
-    
-    if (desconto > 0) {
-        showNotification(`🎉 Assinante! Você ganha ${desconto * 100}% de desconto em produtos!`);
-    }
-}
 
 function calcularPrecoComDesconto(precoOriginal) {
     if (!currentUserPlan) return precoOriginal;
@@ -191,88 +158,6 @@ function calcularPrecoComDesconto(precoOriginal) {
     if (currentUserPlan.plano === 'vip') desconto = 0.3;
     
     return precoOriginal * (1 - desconto);
-}
-
-// ========== MODAIS ==========
-function initializeModals() {
-    // Modal do Carrinho
-    cartModal = document.getElementById('cart-modal');
-    if (!cartModal) {
-        cartModal = document.createElement('div');
-        cartModal.id = 'cart-modal';
-        cartModal.className = 'modal cart-modal';
-        cartModal.innerHTML = `
-            <div class="modal-content">
-                <span class="close-cart">&times;</span>
-                <h2>Seu Carrinho</h2>
-                <div id="cart-items"></div>
-                <div class="cart-total">
-                    <strong>Total:</strong> R$ <span id="cart-total">0,00</span>
-                </div>
-                <button id="checkout-btn" class="btn-primary">Finalizar Compra</button>
-            </div>
-        `;
-        document.body.appendChild(cartModal);
-    }
-
-    // Modal de Login
-    loginModal = document.getElementById('login-modal');
-    if (!loginModal) {
-        loginModal = document.createElement('div');
-        loginModal.id = 'login-modal';
-        loginModal.className = 'modal';
-        loginModal.innerHTML = `
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Login</h2>
-                <form id="login-form">
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" id="login-email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Senha:</label>
-                        <input type="password" id="login-password" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Entrar</button>
-                </form>
-                <p style="text-align: center; margin-top: 15px;">
-                    Não tem conta? <a href="#" id="show-register-link">Cadastre-se</a>
-                </p>
-            </div>
-        `;
-        document.body.appendChild(loginModal);
-    }
-
-    // Modal de Cadastro
-    registerModal = document.getElementById('register-modal');
-    if (!registerModal) {
-        registerModal = document.createElement('div');
-        registerModal.id = 'register-modal';
-        registerModal.className = 'modal';
-        registerModal.innerHTML = `
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Criar Conta</h2>
-                <form id="register-form">
-                    <div class="form-group">
-                        <label>Nome:</label>
-                        <input type="text" id="reg-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" id="reg-email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Senha:</label>
-                        <input type="password" id="reg-password" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Cadastrar</button>
-                </form>
-            </div>
-        `;
-        document.body.appendChild(registerModal);
-    }
 }
 
 // ========== SISTEMA DE CARRINHO ==========
@@ -360,7 +245,7 @@ function updateCartModal() {
                     <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
                     <span>${item.quantity}</span>
                     <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
-                    <button onclick="removeFromCart('${item.id}')" style="background: none; border: none; cursor: pointer; color: red;">🗑️</button>
+                    <button onclick="removeFromCart('${item.id}')" style="background: none; border: none; cursor: pointer; color: red; font-size: 18px;">🗑️</button>
                 </div>
             </div>
         `;
@@ -382,6 +267,23 @@ function toggleCart() {
 
 function saveCart() {
     localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+// ========== FUNÇÕES DOS BOTÕES DOS PRODUTOS ==========
+function atribuirEventosProdutos() {
+    const botoes = document.querySelectorAll('.add-to-cart');
+    botoes.forEach(botao => {
+        botao.removeEventListener('click', addToCartHandler);
+        botao.addEventListener('click', addToCartHandler);
+    });
+}
+
+function addToCartHandler(event) {
+    const button = event.currentTarget;
+    const productId = button.dataset.productId;
+    const productName = button.dataset.product;
+    const productPrice = parseFloat(button.dataset.price);
+    addToCart(productId, productName, productPrice);
 }
 
 // ========== CHECKOUT ==========
@@ -589,7 +491,6 @@ function finalizeOrder() {
     
     goToStep(4);
     
-    // Mensagem personalizada para assinantes
     if (currentUserPlan) {
         setTimeout(() => {
             showNotification(`🎉 ${currentUser.nome}, seu pedido foi aprovado com frete ${selectedShipping.preco === 0 ? 'GRÁTIS' : 'via ' + selectedShipping.nome}!`);
@@ -603,7 +504,6 @@ function finalizeOrder() {
 
 // ========== INTERFACE DO USUÁRIO ==========
 function fazerLogin(email, senha) {
-    // Simulação de login (em produção, conectaria ao backend)
     const nome = email.split('@')[0];
     currentUser = { id: 1, nome: nome, email: email };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -611,7 +511,6 @@ function fazerLogin(email, senha) {
     hideLoginModal();
     showNotification(`Bem-vindo, ${nome}!`);
     
-    // Carregar plano do usuário se existir
     const plan = localStorage.getItem('userPlan');
     if (plan) {
         currentUserPlan = JSON.parse(plan);
@@ -701,6 +600,7 @@ function hideUserDropdown() {
 
 // ========== EVENTOS ==========
 function setupEventListeners() {
+    // Carrinho
     if (cartIcon) {
         cartIcon.addEventListener('click', toggleCart);
     }
@@ -715,11 +615,13 @@ function setupEventListeners() {
         checkoutBtn.addEventListener('click', finalizarCompra);
     }
     
+    // User Menu
     const userIcon = document.getElementById('user-icon');
     if (userIcon) {
         userIcon.addEventListener('click', toggleUserDropdown);
     }
     
+    // Login
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) {
         loginBtn.addEventListener('click', showLoginModal);
@@ -751,6 +653,7 @@ function setupEventListeners() {
         });
     }
     
+    // Fechar modais
     const closeBtns = document.querySelectorAll('.modal .close');
     closeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -761,6 +664,7 @@ function setupEventListeners() {
         });
     });
     
+    // Formulários
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
@@ -793,55 +697,7 @@ function setupEventListeners() {
         });
     }
     
-    // Busca
-    const searchBtn = document.getElementById('search-btn');
-    const searchInput = document.getElementById('search-input');
-    if (searchBtn && searchInput) {
-        searchBtn.addEventListener('click', () => {
-            if (searchInput.style.display === 'none') {
-                searchInput.style.display = 'block';
-                searchInput.focus();
-            } else {
-                searchInput.style.display = 'none';
-                searchInput.value = '';
-                renderizarProdutos('todos');
-            }
-        });
-        
-        searchInput.addEventListener('keyup', (e) => {
-            const termo = e.target.value.toLowerCase();
-            if (termo === '') {
-                renderizarProdutos('todos');
-                return;
-            }
-            
-            const filtrados = produtos.filter(p => p.nome.toLowerCase().includes(termo));
-            const container = document.getElementById('produtos-container');
-            if (container) {
-                if (filtrados.length === 0) {
-                    container.innerHTML = '<div class="loading">Nenhum produto encontrado</div>';
-                } else {
-                    container.innerHTML = filtrados.map(produto => `
-                        <article class="box" data-product-id="${produto.id}">
-                            <img width="250" src="https://filipesep.github.io/loja-pet/img/${produto.imagem}" 
-                                 alt="${produto.nome}"
-                                 onerror="this.src='https://via.placeholder.com/250x200/ff6b6b/ffffff?text=UNIPETS'">
-                            <h3>${produto.nome}</h3>
-                            <div class="price">R$ ${produto.preco.toFixed(2)}</div>
-                            <button class="btn add-to-cart" 
-                                    data-product-id="${produto.id}"
-                                    data-product="${produto.nome}" 
-                                    data-price="${produto.preco}">
-                                Adicionar ao Carrinho
-                            </button>
-                        </article>
-                    `).join('');
-                }
-            }
-            atribuirEventosProdutos();
-        });
-    }
-    
+    // Fechar modais ao clicar fora
     window.addEventListener('click', (event) => {
         if (loginModal && event.target === loginModal) hideLoginModal();
         if (registerModal && event.target === registerModal) hideRegisterModal();
@@ -856,30 +712,11 @@ function setupEventListeners() {
         }
     });
     
+    // Atribuir eventos aos produtos
+    atribuirEventosProdutos();
+    
+    // CEP auto-complete
     setupCEPAutoComplete();
-}
-
-function setupCheckoutButton() {
-    const checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn) {
-        checkoutBtn.addEventListener('click', finalizarCompra);
-    }
-}
-
-function atribuirEventosProdutos() {
-    const botoes = document.querySelectorAll('.add-to-cart');
-    botoes.forEach(botao => {
-        botao.removeEventListener('click', addToCartHandler);
-        botao.addEventListener('click', addToCartHandler);
-    });
-}
-
-function addToCartHandler(event) {
-    const button = event.currentTarget;
-    const productId = button.dataset.productId;
-    const productName = button.dataset.product;
-    const productPrice = parseFloat(button.dataset.price);
-    addToCart(productId, productName, productPrice);
 }
 
 function setupCEPAutoComplete() {
@@ -949,7 +786,4 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-console.log('✅ UNIPETS 2.0 - Sistema carregado com sucesso!');
-console.log('📦 Versão com:', produtos.length, 'produtos');
-console.log('🏷️ Categorias: Alimentos, Brinquedos, Camas, Higiene');
-console.log('💳 Sistema de convênio ativo!');
+console.log('✅ UNIPETS - Sistema carregado com sucesso!');
