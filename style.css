@@ -961,3 +961,72 @@ section {
     }
 }
 
+
+/* ========== CORREÇÕES DE TEXTO E LAYOUT ========== */
+
+/* Garante que os cards tenham tamanho adequado */
+.box {
+    min-width: 220px;
+    max-width: 280px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Ajusta altura das imagens */
+.box img {
+    max-height: 180px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+
+/* Títulos com 2 linhas no máximo */
+.box h3 {
+    font-size: 1.5rem;
+    min-height: 4.5rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Preço bem formatado */
+.price {
+    font-size: 1.6rem;
+    margin: 0.5rem 0;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Botão com quebra de linha e tamanho adequado */
+.add-to-cart {
+    white-space: normal;
+    word-break: break-word;
+    font-size: 1.3rem;
+    line-height: 1.4;
+    padding: 0.8rem 0.5rem;
+    min-height: 44px;
+    width: 100%;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: auto;
+}
+
+.add-to-cart:hover {
+    background: #ff5252;
+}
+
+/* Grid responsivo - produtos se ajustam */
+.box-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    justify-items: center;
+}
