@@ -1,167 +1,151 @@
-// ========== CONFIGURAÇÃO ==========
+// ========== UNIPETS - VERSÃO MOBILE 100% ==========
+console.log('🚀 UNIPETS iniciando...');
+
+// Estado
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 let selectedShipping = null;
 let checkoutData = { address: null, shipping: null, payment: null };
 let currentUserPlan = JSON.parse(localStorage.getItem('userPlan')) || null;
 
-// ========== ELEMENTOS ==========
+// Elementos
 const cartIcon = document.getElementById('cart-icon');
 const cartCounter = document.getElementById('cart-counter');
 let cartModal, loginModal, registerModal;
 
-// ========== INICIALIZAÇÃO FORÇADA ==========
+// ========== INICIALIZAÇÃO ==========
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 UNIPETS iniciando...');
-    initializeModals();
-    updateCartCounter();
-    updateUserInterface();
-    setupEventListeners();
-    setupCategoryFilters();
-    setupSearch();
+    console.log('DOM carregado');
+    criarModais();
+    atualizarCarrinhoContador();
+    atualizarInterfaceUsuario();
+    configurarEventos();
+    configurarFiltros();
+    configurarBusca();
 });
 
-// ========== FILTROS POR CATEGORIA (100% mobile) ==========
-function setupCategoryFilters() {
+// ========== CRIA MODAIS SE NÃO EXISTIREM ==========
+function criarModais() {
+    if (!document.getElementById('cart-modal')) {
+        cartModal = document.createElement('div');
+        cartModal.id = 'cart-modal';
+        cartModal.className = 'modal cart-modal';
+        cartModal.innerHTML = `<div class="modal-content"><span class="close-cart">&times;</span><h2>Seu Carrinho</h2><div id="cart-items"></div><div class="cart-total"><strong>Total:</strong> R$ <span id="cart-total">0,00</span></div><button id="checkout-btn" class="btn-primary">Finalizar Compra</button></div>`;
+        document.body.appendChild(cartModal);
+    } else {
+        cartModal = document.getElementById('cart-modal');
+    }
+    loginModal = document.getElementById('login-modal');
+    registerModal = document.getElementById('register-modal');
+}
+
+// ========== FILTROS (funciona no mobile) ==========
+function configurarFiltros() {
     const botoes = document.querySelectorAll('.cat-btn');
     const produtos = document.querySelectorAll('.menu .box');
+    if (!botoes.length) return;
 
-    if (!botoes.length) {
-        console.warn('Nenhum botão de categoria encontrado');
-        return;
-    }
-
-    function filtrar(categoria) {
-        console.log('Filtrando:', categoria);
-        produtos.forEach(produto => {
-            const cat = produto.getAttribute('data-categoria');
-            if (categoria === 'todos' || cat === categoria) {
-                produto.style.display = 'flex';
-            } else {
-                produto.style.display = 'none';
-            }
+    function aplicarFiltro(categoria) {
+        produtos.forEach(prod => {
+            const cat = prod.getAttribute('data-categoria');
+            prod.style.display = (categoria === 'todos' || cat === categoria) ? 'flex' : 'none';
         });
     }
 
     botoes.forEach(botao => {
-        // Remove eventos antigos para evitar duplicação
-        const novoBotao = botao.cloneNode(true);
-        botao.parentNode.replaceChild(novoBotao, botao);
-        
-        novoBotao.addEventListener('click', (e) => {
+        botao.addEventListener('click', (e) => {
             e.preventDefault();
-            const cat = novoBotao.getAttribute('data-cat');
-            // Remove active de todos
+            const categoria = botao.getAttribute('data-cat');
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-            novoBotao.classList.add('active');
-            filtrar(cat);
+            botao.classList.add('active');
+            aplicarFiltro(categoria);
         });
     });
 }
 
 // ========== BUSCA ==========
-function setupSearch() {
-    const searchBtn = document.getElementById('search-btn');
-    const searchInput = document.getElementById('search-input');
-
-    if (!searchBtn) return;
-
-    const toggle = () => {
-        if (searchInput.style.display === 'none') {
-            searchInput.style.display = 'block';
-            searchInput.focus();
+function configurarBusca() {
+    const btn = document.getElementById('search-btn');
+    const input = document.getElementById('search-input');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        if (input.style.display === 'none') {
+            input.style.display = 'block';
+            input.focus();
         } else {
-            searchInput.style.display = 'none';
-            searchInput.value = '';
-            mostrarTodosProdutos();
+            input.style.display = 'none';
+            input.value = '';
+            document.querySelectorAll('.menu .box').forEach(p => p.style.display = 'flex');
         }
-    };
-
-    searchBtn.addEventListener('click', toggle);
-    searchInput.addEventListener('keyup', (e) => {
-        const termo = e.target.value.toLowerCase();
-        const produtos = document.querySelectorAll('.menu .box');
-        produtos.forEach(prod => {
+    });
+    input.addEventListener('keyup', () => {
+        const termo = input.value.toLowerCase();
+        document.querySelectorAll('.menu .box').forEach(prod => {
             const nome = prod.querySelector('h3')?.innerText.toLowerCase() || '';
             prod.style.display = nome.includes(termo) ? 'flex' : 'none';
         });
     });
 }
 
-function mostrarTodosProdutos() {
-    document.querySelectorAll('.menu .box').forEach(prod => prod.style.display = 'flex');
-    document.querySelectorAll('.cat-btn').forEach(btn => {
-        if (btn.dataset.cat === 'todos') btn.classList.add('active');
-        else btn.classList.remove('active');
-    });
-}
-
-// ========== MODAIS ==========
-function initializeModals() {
-    cartModal = document.getElementById('cart-modal');
-    loginModal = document.getElementById('login-modal');
-    registerModal = document.getElementById('register-modal');
-}
-
-// ========== CONVÊNIO ==========
+// ========== PLANOS (convênio) ==========
 window.assinarPlano = function(plano) {
+    console.log('Assinando plano:', plano);
     if (!currentUser) {
-        alert('Faça login para assinar!');
-        showLoginModal();
+        alert('Faça login para assinar um plano!');
+        if (loginModal) loginModal.style.display = 'block';
         return;
     }
     let preco = 0, beneficios = '';
     if (plano === 'basico') { preco = 29.90; beneficios = '1 banho/mês, 10% off'; }
     else if (plano === 'premium') { preco = 59.90; beneficios = '2 banhos/mês, 20% off, prioridade'; }
     else { preco = 99.90; beneficios = 'Banhos ilimitados, 30% off, corte grátis'; }
-
     if (confirm(`Confirmar Plano ${plano.toUpperCase()} - R$ ${preco}/mês?\n\n${beneficios}\n\n*UNIPETS não cobre consultas.`)) {
         currentUserPlan = { plano, preco, dataAssinatura: new Date().toISOString() };
         localStorage.setItem('userPlan', JSON.stringify(currentUserPlan));
         alert(`✅ Plano ${plano.toUpperCase()} ativado!`);
-        updateUserInterface();
+        atualizarInterfaceUsuario();
     }
 };
 
-function calcularPrecoComDesconto(precoOriginal) {
-    if (!currentUserPlan) return precoOriginal;
+function calcularPrecoComDesconto(preco) {
+    if (!currentUserPlan) return preco;
     const descontos = { basico: 0.1, premium: 0.2, vip: 0.3 };
-    return precoOriginal * (1 - (descontos[currentUserPlan.plano] || 0));
+    return preco * (1 - (descontos[currentUserPlan.plano] || 0));
 }
 
 // ========== CARRINHO ==========
-function addToCart(productId, productName, productPrice) {
-    const existing = cart.find(item => item.id === productId);
-    const precoFinal = currentUserPlan ? calcularPrecoComDesconto(productPrice) : productPrice;
-    if (existing) existing.quantity++;
-    else cart.push({ id: productId, name: productName, price: precoFinal, priceOriginal: productPrice, quantity: 1 });
-    updateCartCounter();
-    saveCart();
-    updateCartModal();
-    alert(`${productName} adicionado!`);
+function adicionarAoCarrinho(id, nome, preco) {
+    const existente = cart.find(item => item.id === id);
+    const precoFinal = currentUserPlan ? calcularPrecoComDesconto(preco) : preco;
+    if (existente) existente.quantity++;
+    else cart.push({ id, name: nome, price: precoFinal, priceOriginal: preco, quantity: 1 });
+    salvarCarrinho();
+    atualizarCarrinhoContador();
+    atualizarModalCarrinho();
+    alert(`${nome} adicionado!`);
 }
 
-function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
-    updateCartCounter();
-    updateCartModal();
-    saveCart();
+function removerDoCarrinho(id) {
+    cart = cart.filter(item => item.id !== id);
+    salvarCarrinho();
+    atualizarCarrinhoContador();
+    atualizarModalCarrinho();
 }
 
-function updateQuantity(productId, change) {
-    const item = cart.find(i => i.id === productId);
+function alterarQuantidade(id, delta) {
+    const item = cart.find(i => i.id === id);
     if (item) {
-        item.quantity += change;
-        if (item.quantity <= 0) removeFromCart(productId);
-        else { updateCartCounter(); updateCartModal(); saveCart(); }
+        item.quantity += delta;
+        if (item.quantity <= 0) removerDoCarrinho(id);
+        else { salvarCarrinho(); atualizarCarrinhoContador(); atualizarModalCarrinho(); }
     }
 }
 
-function updateCartCounter() {
+function atualizarCarrinhoContador() {
     if (cartCounter) cartCounter.textContent = cart.reduce((s, i) => s + i.quantity, 0);
 }
 
-function updateCartModal() {
+function atualizarModalCarrinho() {
     const div = document.getElementById('cart-items');
     const totalSpan = document.getElementById('cart-total');
     if (!div) return;
@@ -170,69 +154,56 @@ function updateCartModal() {
     div.innerHTML = cart.map(item => {
         const sub = item.price * item.quantity;
         total += sub;
-        return `<div class="cart-item"><div class="cart-item-info"><h4>${item.name}</h4><p>R$ ${item.price.toFixed(2)}</p></div><div class="cart-item-actions"><button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button><span>${item.quantity}</span><button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button><button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:red;">🗑️</button></div></div>`;
+        return `<div class="cart-item"><div><h4>${item.name}</h4><p>R$ ${item.price.toFixed(2)}</p></div><div><button onclick="alterarQuantidade('${item.id}', -1)">-</button> ${item.quantity} <button onclick="alterarQuantidade('${item.id}', 1)">+</button> <button onclick="removerDoCarrinho('${item.id}')">🗑️</button></div></div>`;
     }).join('');
     if (totalSpan) totalSpan.textContent = total.toFixed(2);
 }
 
-function toggleCart() {
+function abrirFecharCarrinho() {
     if (!cartModal) return;
-    cartModal.style.display = cartModal.style.display === 'block' ? 'none' : 'block';
-    if (cartModal.style.display === 'block') updateCartModal();
+    const visivel = cartModal.style.display === 'block';
+    cartModal.style.display = visivel ? 'none' : 'block';
+    if (!visivel) atualizarModalCarrinho();
 }
 
-function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
+function salvarCarrinho() { localStorage.setItem('cart', JSON.stringify(cart)); }
 
-function atribuirEventosProdutos() {
+function configurarBotoesProdutos() {
     document.querySelectorAll('.add-to-cart').forEach(btn => {
-        btn.removeEventListener('click', addToCartHandler);
-        btn.addEventListener('click', addToCartHandler);
+        btn.removeEventListener('click', handlerProduto);
+        btn.addEventListener('click', handlerProduto);
     });
 }
-function addToCartHandler(e) {
+function handlerProduto(e) {
     const btn = e.currentTarget;
-    addToCart(btn.dataset.productId, btn.dataset.product, parseFloat(btn.dataset.price));
+    adicionarAoCarrinho(btn.dataset.productId, btn.dataset.product, parseFloat(btn.dataset.price));
 }
 
 // ========== CHECKOUT ==========
 function finalizarCompra() {
     if (!cart.length) { alert('Carrinho vazio'); return; }
-    if (!currentUser) { alert('Faça login para finalizar'); toggleCart(); showLoginModal(); return; }
-    toggleCart();
-    setTimeout(() => showCheckoutModal(), 200);
+    if (!currentUser) { alert('Faça login'); abrirFecharCarrinho(); if (loginModal) loginModal.style.display = 'block'; return; }
+    abrirFecharCarrinho();
+    setTimeout(() => { const modal = document.getElementById('checkout-modal'); if (modal) modal.style.display = 'block'; resetarCheckout(); }, 200);
 }
-function showCheckoutModal() { const m = document.getElementById('checkout-modal'); if (m) { m.style.display = 'block'; resetCheckout(); } }
-function closeCheckout() { const m = document.getElementById('checkout-modal'); if (m) m.style.display = 'none'; }
-function resetCheckout() { checkoutData = { address: null, shipping: null, payment: null }; selectedShipping = null; goToStep(1); updateOrderSummary(); }
-function goToStep(s) {
-    document.querySelectorAll('.checkout-step').forEach(step => step.style.display = 'none');
-    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-    const st = document.getElementById(`step-${s}`);
-    const ind = document.querySelector(`[data-step="${s}"]`);
-    if (st) st.style.display = 'block';
-    if (ind) ind.classList.add('active');
+function resetarCheckout() { checkoutData = { address: null, shipping: null, payment: null }; selectedShipping = null; irParaStep(1); atualizarResumo(); }
+function irParaStep(step) {
+    document.querySelectorAll('.checkout-step').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(`step-${step}`);
+    const indicador = document.querySelector(`[data-step="${step}"]`);
+    if (el) el.style.display = 'block';
+    if (indicador) indicador.classList.add('active');
 }
-function nextStep(n) {
-    if (n === 2) { if (!validateAddress()) { alert('Preencha o endereço'); return; } saveAddress(); calculateShipping(); }
-    if (n === 3) { if (!selectedShipping) { alert('Selecione o frete'); return; } checkoutData.shipping = selectedShipping; updateOrderSummary(); }
-    goToStep(n);
+function proximoStep(next) {
+    if (next === 2) { if (!validarEndereco()) { alert('Preencha o endereço'); return; } salvarEndereco(); calcularFrete(); }
+    if (next === 3) { if (!selectedShipping) { alert('Selecione o frete'); return; } checkoutData.shipping = selectedShipping; atualizarResumo(); }
+    irParaStep(next);
 }
-function prevStep(p) { goToStep(p); }
-function validateAddress() {
-    return ['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado'].every(id => document.getElementById(id)?.value.trim());
-}
-function saveAddress() {
-    checkoutData.address = {
-        cep: document.getElementById('cep').value,
-        logradouro: document.getElementById('logradouro').value,
-        numero: document.getElementById('numero').value,
-        complemento: document.getElementById('complemento').value,
-        bairro: document.getElementById('bairro').value,
-        cidade: document.getElementById('cidade').value,
-        estado: document.getElementById('estado').value
-    };
-}
-function calculateShipping() {
+function stepAnterior(prev) { irParaStep(prev); }
+function validarEndereco() { return ['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado'].every(id => document.getElementById(id)?.value.trim()); }
+function salvarEndereco() { checkoutData.address = { cep: document.getElementById('cep').value, logradouro: document.getElementById('logradouro').value, numero: document.getElementById('numero').value, complemento: document.getElementById('complemento').value, bairro: document.getElementById('bairro').value, cidade: document.getElementById('cidade').value, estado: document.getElementById('estado').value }; }
+function calcularFrete() {
     const div = document.getElementById('shipping-options');
     if (!div) return;
     const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -242,76 +213,64 @@ function calculateShipping() {
         { nome: 'Expressa', preco: 39.90, dias: '1-2' }
     ];
     if (subtotal > 200 || currentUserPlan?.plano === 'vip') opcoes.unshift({ nome: 'Grátis', preco: 0, dias: '5-7' });
-    div.innerHTML = opcoes.map((opt, idx) => `
-        <div class="shipping-option ${idx === 1 ? 'selected' : ''}" onclick="selectShipping(${idx})">
-            <input type="radio" name="shipping" ${idx === 1 ? 'checked' : ''}>
-            <div class="shipping-info">
-                <div><strong>${opt.nome}</strong><div class="shipping-time">${opt.dias} dias úteis</div></div>
-                <div class="shipping-price">${opt.preco === 0 ? 'GRÁTIS' : `R$ ${opt.preco.toFixed(2)}`}</div>
-            </div>
-        </div>
-    `).join('');
+    div.innerHTML = opcoes.map((opt, idx) => `<div class="shipping-option ${idx === 1 ? 'selected' : ''}" onclick="selecionarFrete(${idx})"><input type="radio" name="shipping" ${idx === 1 ? 'checked' : ''}><div><strong>${opt.nome}</strong><div>${opt.dias} dias úteis</div></div><div>${opt.preco === 0 ? 'GRÁTIS' : `R$ ${opt.preco.toFixed(2)}`}</div></div>`).join('');
     selectedShipping = opcoes[1];
     if (opcoes[0].preco === 0) selectedShipping = opcoes[0];
 }
-window.selectShipping = function(idx) {
-    const opts = [];
+window.selecionarFrete = function(idx) {
+    const opcoes = [];
     document.querySelectorAll('.shipping-option').forEach(opt => {
         const nome = opt.querySelector('strong')?.innerText || '';
-        const precoTxt = opt.querySelector('.shipping-price')?.innerText || 'R$ 0';
+        const precoTxt = opt.querySelector('div:last-child')?.innerText || 'R$ 0';
         let preco = 0;
         if (precoTxt !== 'GRÁTIS') preco = parseFloat(precoTxt.replace('R$', '').replace(',', '.'));
-        const dias = opt.querySelector('.shipping-time')?.innerText.match(/\d+/)?.[0] || '5';
-        opts.push({ nome, preco, dias });
+        const dias = opt.innerText.match(/\d+/)?.[0] || '5';
+        opcoes.push({ nome, preco, dias });
     });
-    selectedShipping = opts[idx];
-    document.querySelectorAll('.shipping-option').forEach((opt, i) => {
-        if (i === idx) opt.classList.add('selected');
-        else opt.classList.remove('selected');
-    });
-    updateOrderSummary();
+    selectedShipping = opcoes[idx];
+    document.querySelectorAll('.shipping-option').forEach((opt, i) => { if (i === idx) opt.classList.add('selected'); else opt.classList.remove('selected'); });
+    atualizarResumo();
 };
-function updateOrderSummary() {
+function atualizarResumo() {
     const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
     const frete = selectedShipping?.preco || 0;
     document.getElementById('summary-subtotal').innerHTML = `R$ ${subtotal.toFixed(2)}`;
     document.getElementById('summary-frete').innerHTML = `R$ ${frete.toFixed(2)}`;
     document.getElementById('summary-total').innerHTML = `R$ ${(subtotal + frete).toFixed(2)}`;
 }
-function finalizeOrder() {
+function finalizarPedido() {
     const metodo = document.querySelector('input[name="payment"]:checked')?.value;
     if (!metodo) { alert('Escolha o pagamento'); return; }
     checkoutData.payment = metodo;
     const total = cart.reduce((s, i) => s + i.price * i.quantity, 0) + (selectedShipping?.preco || 0);
-    const numPedido = '#' + Math.random().toString(36).substr(2, 8).toUpperCase();
-    document.getElementById('order-number').innerHTML = numPedido;
+    const num = '#' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    document.getElementById('order-number').innerHTML = num;
     document.getElementById('delivery-estimate').innerHTML = `${selectedShipping?.dias || 5} dias úteis`;
     document.getElementById('order-total').innerHTML = `R$ ${total.toFixed(2)}`;
-    goToStep(4);
+    irParaStep(4);
     cart = [];
-    updateCartCounter();
-    saveCart();
+    salvarCarrinho();
+    atualizarCarrinhoContador();
     alert('Pedido finalizado!');
 }
+window.finalizeOrder = finalizarPedido;
+window.nextStep = proximoStep;
+window.prevStep = stepAnterior;
+window.closeCheckout = () => { const modal = document.getElementById('checkout-modal'); if (modal) modal.style.display = 'none'; };
 
 // ========== LOGIN ==========
 function fazerLogin(email, senha) {
     const nome = email.split('@')[0];
     currentUser = { id: 1, nome, email };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    updateUserInterface();
-    hideLoginModal();
+    atualizarInterfaceUsuario();
+    if (loginModal) loginModal.style.display = 'none';
     alert(`Bem-vindo, ${nome}!`);
     const plano = localStorage.getItem('userPlan');
     if (plano) currentUserPlan = JSON.parse(plano);
-    return true;
 }
-function cadastrarUsuario(nome, email, senha) {
-    fazerLogin(email, senha);
-    hideRegisterModal();
-    return true;
-}
-function updateUserInterface() {
+function cadastrar(nome, email, senha) { fazerLogin(email, senha); if (registerModal) registerModal.style.display = 'none'; }
+function atualizarInterfaceUsuario() {
     const userName = document.getElementById('user-name');
     const userAvatar = document.getElementById('user-avatar');
     const userGreeting = document.getElementById('user-greeting');
@@ -340,36 +299,37 @@ function updateUserInterface() {
         if (myPlanBtn) myPlanBtn.style.display = 'none';
     }
 }
-function showLoginModal() { if (loginModal) loginModal.style.display = 'block'; hideUserDropdown(); }
-function hideLoginModal() { if (loginModal) loginModal.style.display = 'none'; }
-function showRegisterModal() { if (registerModal) registerModal.style.display = 'block'; hideUserDropdown(); }
-function hideRegisterModal() { if (registerModal) registerModal.style.display = 'none'; }
-function toggleUserDropdown() { document.getElementById('user-dropdown')?.classList.toggle('show'); }
-function hideUserDropdown() { document.getElementById('user-dropdown')?.classList.remove('show'); }
+function abrirLogin() { if (loginModal) loginModal.style.display = 'block'; fecharDropdown(); }
+function fecharLogin() { if (loginModal) loginModal.style.display = 'none'; }
+function abrirCadastro() { if (registerModal) registerModal.style.display = 'block'; fecharDropdown(); }
+function fecharCadastro() { if (registerModal) registerModal.style.display = 'none'; }
+function alternarDropdown() { document.getElementById('user-dropdown')?.classList.toggle('show'); }
+function fecharDropdown() { document.getElementById('user-dropdown')?.classList.remove('show'); }
 
-// ========== EVENTOS GLOBAIS ==========
-function setupEventListeners() {
-    if (cartIcon) cartIcon.addEventListener('click', toggleCart);
-    document.querySelector('.close-cart')?.addEventListener('click', toggleCart);
+// ========== CONFIGURAÇÃO DE EVENTOS ==========
+function configurarEventos() {
+    if (cartIcon) cartIcon.addEventListener('click', abrirFecharCarrinho);
+    document.querySelector('.close-cart')?.addEventListener('click', abrirFecharCarrinho);
     document.getElementById('checkout-btn')?.addEventListener('click', finalizarCompra);
-    document.getElementById('user-icon')?.addEventListener('click', toggleUserDropdown);
-    document.getElementById('login-btn')?.addEventListener('click', showLoginModal);
-    document.getElementById('cadastro-btn')?.addEventListener('click', showRegisterModal);
+    document.getElementById('user-icon')?.addEventListener('click', alternarDropdown);
+    document.getElementById('login-btn')?.addEventListener('click', abrirLogin);
+    document.getElementById('cadastro-btn')?.addEventListener('click', abrirCadastro);
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         currentUser = null;
         localStorage.removeItem('currentUser');
-        updateUserInterface();
+        atualizarInterfaceUsuario();
         alert('Logout');
     });
     document.getElementById('my-plan-btn')?.addEventListener('click', () => {
         if (currentUserPlan) alert(`Plano ${currentUserPlan.plano} - R$ ${currentUserPlan.preco}/mês`);
-        else alert('Nenhum plano ativo.');
+        else alert('Nenhum plano ativo. Acesse CONVÊNIO.');
     });
     document.querySelectorAll('.modal .close').forEach(btn => {
         btn.addEventListener('click', () => {
             if (loginModal) loginModal.style.display = 'none';
             if (registerModal) registerModal.style.display = 'none';
-            document.getElementById('checkout-modal')?.style.display = 'none';
+            const checkout = document.getElementById('checkout-modal');
+            if (checkout) checkout.style.display = 'none';
         });
     });
     document.getElementById('login-form')?.addEventListener('submit', e => {
@@ -378,25 +338,25 @@ function setupEventListeners() {
     });
     document.getElementById('register-form')?.addEventListener('submit', e => {
         e.preventDefault();
-        cadastrarUsuario(document.getElementById('reg-name').value, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
+        cadastrar(document.getElementById('reg-name').value, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
     });
     document.getElementById('show-register-link')?.addEventListener('click', e => {
         e.preventDefault();
-        hideLoginModal();
-        showRegisterModal();
+        fecharLogin();
+        abrirCadastro();
     });
     window.addEventListener('click', e => {
-        if (loginModal && e.target === loginModal) hideLoginModal();
-        if (registerModal && e.target === registerModal) hideRegisterModal();
-        if (cartModal && e.target === cartModal) toggleCart();
-        if (e.target === document.getElementById('checkout-modal')) closeCheckout();
-        if (!e.target.closest('.user-menu')) hideUserDropdown();
+        if (loginModal && e.target === loginModal) fecharLogin();
+        if (registerModal && e.target === registerModal) fecharCadastro();
+        if (cartModal && e.target === cartModal) abrirFecharCarrinho();
+        if (e.target === document.getElementById('checkout-modal')) document.getElementById('checkout-modal').style.display = 'none';
+        if (!e.target.closest('.user-menu')) fecharDropdown();
     });
-    atribuirEventosProdutos();
-    setupCEPAutoComplete();
+    configurarBotoesProdutos();
+    configurarCEP();
 }
 
-function setupCEPAutoComplete() {
+function configurarCEP() {
     const cep = document.getElementById('cep');
     if (!cep) return;
     cep.addEventListener('input', e => {
@@ -407,16 +367,18 @@ function setupCEPAutoComplete() {
     cep.addEventListener('blur', async () => {
         let v = cep.value.replace(/\D/g, '');
         if (v.length === 8) {
-            const res = await fetch(`https://viacep.com.br/ws/${v}/json/`);
-            const data = await res.json();
-            if (!data.erro) {
-                document.getElementById('logradouro').value = data.logradouro || '';
-                document.getElementById('bairro').value = data.bairro || '';
-                document.getElementById('cidade').value = data.localidade || '';
-                document.getElementById('estado').value = data.uf || '';
-            }
+            try {
+                const res = await fetch(`https://viacep.com.br/ws/${v}/json/`);
+                const data = await res.json();
+                if (!data.erro) {
+                    document.getElementById('logradouro').value = data.logradouro || '';
+                    document.getElementById('bairro').value = data.bairro || '';
+                    document.getElementById('cidade').value = data.localidade || '';
+                    document.getElementById('estado').value = data.uf || '';
+                }
+            } catch (err) { console.log(err); }
         }
     });
 }
 
-console.log('✅ UNIPETS mobile 100%');
+console.log('✅ UNIPETS mobile final');
