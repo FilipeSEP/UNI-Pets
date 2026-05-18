@@ -1,14 +1,14 @@
-// ========== UNIPETS - VERSÃO ESTÁVEL (PC + MOBILE) ==========
+// ========== UNIPETS - VERSÃO ESTÁVEL COMPATÍVEL COM PC + MOBILE ==========
 console.log('🚀 UNIPETS iniciando...');
 
-// Estado
+// Estado Global
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 let selectedShipping = null;
 let checkoutData = { address: null, shipping: null, payment: null };
 let currentUserPlan = JSON.parse(localStorage.getItem('userPlan')) || null;
 
-// Elementos
+// Elementos da Interface
 const cartIcon = document.getElementById('cart-icon');
 const cartCounter = document.getElementById('cart-counter');
 let cartModal, loginModal, registerModal;
@@ -68,8 +68,9 @@ function configurarBusca() {
     const btn = document.getElementById('search-btn');
     const input = document.getElementById('search-input');
     if (!btn) return;
+    
     btn.addEventListener('click', () => {
-        if (input.style.display === 'none') {
+        if (input.style.display === 'none' || input.style.display === '') {
             input.style.display = 'block';
             input.focus();
         } else {
@@ -82,6 +83,7 @@ function configurarBusca() {
             });
         }
     });
+    
     input.addEventListener('keyup', () => {
         const termo = input.value.toLowerCase();
         document.querySelectorAll('.menu .box').forEach(prod => {
@@ -116,6 +118,12 @@ window.assinarPlano = function(plano) {
         localStorage.setItem('userPlan', JSON.stringify(currentUserPlan));
         alert('✅ Plano ' + plano.toUpperCase() + ' ativado!');
         atualizarInterfaceUsuario();
+        
+        // Recalcula preços do carrinho atual com o novo desconto do plano
+        cart.forEach(item => {
+            item.price = calcularPrecoComDesconto(item.priceOriginal);
+        });
+        salvarCarrinho();
     }
 };
 
@@ -130,7 +138,7 @@ function calcularPrecoComDesconto(preco) {
 // ========== CARRINHO ==========
 function adicionarAoCarrinho(id, nome, preco) {
     const existente = cart.find(item => item.id === id);
-    const precoFinal = currentUserPlan ? calcularPrecoComDesconto(preco) : preco;
+    const precoFinal = calcularPrecoComDesconto(preco);
     if (existente) {
         existente.quantity = existente.quantity + 1;
     } else {
@@ -149,7 +157,8 @@ function removerDoCarrinho(id) {
     atualizarModalCarrinho();
 }
 
-function alterarQuantidade(id, delta) {
+// Globalizado para escuta nativa dos botões do modal
+window.alterarQuantidade = function(id, delta) {
     const item = cart.find(i => i.id === id);
     if (item) {
         item.quantity = item.quantity + delta;
@@ -161,7 +170,9 @@ function alterarQuantidade(id, delta) {
             atualizarModalCarrinho();
         }
     }
-}
+};
+
+window.removerDoCarrinho = removerDoCarrinho;
 
 function atualizarCarrinhoContador() {
     if (cartCounter) {
@@ -188,7 +199,7 @@ function atualizarModalCarrinho() {
         const item = cart[i];
         const sub = item.price * item.quantity;
         total = total + sub;
-        html = html + '<div class="cart-item"><div class="cart-item-info"><h4>' + item.name + '</h4><p>R$ ' + item.price.toFixed(2) + '</p></div><div class="cart-item-actions"><button class="quantity-btn" onclick="alterarQuantidade(\'' + item.id + '\', -1)">-</button><span>' + item.quantity + '</span><button class="quantity-btn" onclick="alterarQuantidade(\'' + item.id + '\', 1)">+</button><button onclick="removerDoCarrinho(\'' + item.id + '\')" style="background:none; border:none; color:red;">🗑️</button></div></div>';
+        html = html + '<div class="cart-item"><div class="cart-item-info"><h4>' + item.name + '</h4><p>R$ ' + item.price.toFixed(2) + '</p></div><div class="cart-item-actions"><button class="quantity-btn" onclick="window.alterarQuantidade(\'' + item.id + '\', -1)">-</button><span>' + item.quantity + '</span><button class="quantity-btn" onclick="window.alterarQuantidade(\'' + item.id + '\', 1)">+</button><button onclick="window.removerDoCarrinho(\'' + item.id + '\')" style="background:none; border:none; color:red; padding: 5px;">🗑️</button></div></div>';
     }
     div.innerHTML = html;
     if (totalSpan) totalSpan.textContent = total.toFixed(2);
@@ -206,20 +217,6 @@ function abrirFecharCarrinho() {
 
 function salvarCarrinho() {
     localStorage.setItem('cart', JSON.stringify(cart));
-}
-
-function configurarBotoesProdutos() {
-    const botoes = document.querySelectorAll('.add-to-cart');
-    for (let i = 0; i < botoes.length; i++) {
-        const btn = botoes[i];
-        btn.removeEventListener('click', handlerProduto);
-        btn.addEventListener('click', handlerProduto);
-    }
-}
-
-function handlerProduto(e) {
-    const btn = e.currentTarget;
-    adicionarAoCarrinho(btn.getAttribute('data-product-id'), btn.getAttribute('data-product'), parseFloat(btn.getAttribute('data-price')));
 }
 
 // ========== CHECKOUT ==========
@@ -267,7 +264,7 @@ function irParaStep(step) {
 function proximoStep(next) {
     if (next === 2) {
         if (!validarEndereco()) {
-            alert('Preencha o endereço');
+            alert('Preencha todos os campos obrigatórios do endereço.');
             return;
         }
         salvarEndereco();
@@ -275,7 +272,7 @@ function proximoStep(next) {
     }
     if (next === 3) {
         if (!selectedShipping) {
-            alert('Selecione o frete');
+            alert('Selecione uma opção de frete.');
             return;
         }
         checkoutData.shipping = selectedShipping;
@@ -302,7 +299,7 @@ function salvarEndereco() {
         cep: document.getElementById('cep').value,
         logradouro: document.getElementById('logradouro').value,
         numero: document.getElementById('numero').value,
-        complemento: document.getElementById('complemento').value,
+        complemento: document.getElementById('complemento')?.value || '',
         bairro: document.getElementById('bairro').value,
         cidade: document.getElementById('cidade').value,
         estado: document.getElementById('estado').value
@@ -328,13 +325,13 @@ function calcularFrete() {
     for (let i = 0; i < opcoes.length; i++) {
         const opt = opcoes[i];
         let precoTexto = opt.preco === 0 ? 'GRÁTIS' : 'R$ ' + opt.preco.toFixed(2);
-        let selectedClass = (i === 1) ? 'selected' : '';
+        let selectedClass = (i === 1 && opcoes[0].preco !== 0) ? 'selected' : '';
         if (opt.preco === 0) selectedClass = 'selected';
-        html = html + '<div class="shipping-option ' + selectedClass + '" onclick="selecionarFrete(' + i + ')"><input type="radio" name="shipping" ' + (selectedClass ? 'checked' : '') + '><div class="shipping-info"><div><strong>' + opt.nome + '</strong><div class="shipping-time">' + opt.dias + ' dias úteis</div></div><div class="shipping-price">' + precoTexto + '</div></div></div>';
+        
+        html = html + '<div class="shipping-option ' + selectedClass + '" onclick="window.selecionarFrete(' + i + ')"><input type="radio" name="shipping" ' + (selectedClass ? 'checked' : '') + '><div class="shipping-info"><div><strong>' + opt.nome + '</strong><div class="shipping-time">' + opt.dias + ' dias úteis</div></div><div class="shipping-price">' + precoTexto + '</div></div></div>';
     }
     div.innerHTML = html;
-    selectedShipping = opcoes[1];
-    if (opcoes[0].preco === 0) selectedShipping = opcoes[0];
+    selectedShipping = opcoes[0].preco === 0 ? opcoes[0] : opcoes[1];
 }
 
 window.selecionarFrete = function(idx) {
@@ -346,7 +343,7 @@ window.selecionarFrete = function(idx) {
         const precoTxt = opt.querySelector('.shipping-price')?.innerText || 'R$ 0';
         let preco = 0;
         if (precoTxt !== 'GRÁTIS') {
-            preco = parseFloat(precoTxt.replace('R$', '').replace(',', '.'));
+            preco = parseFloat(precoTxt.replace('R$', '').replace(',', '.').trim());
         }
         const dias = opt.innerText.match(/\d+/)?.[0] || '5';
         opcoes.push({ nome: nome, preco: preco, dias: dias });
@@ -355,6 +352,8 @@ window.selecionarFrete = function(idx) {
     for (let i = 0; i < optionsDivs.length; i++) {
         if (i === idx) {
             optionsDivs[i].classList.add('selected');
+            const radio = optionsDivs[i].querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
         } else {
             optionsDivs[i].classList.remove('selected');
         }
@@ -368,15 +367,20 @@ function atualizarResumo() {
         subtotal = subtotal + (cart[i].price * cart[i].quantity);
     }
     const frete = selectedShipping ? selectedShipping.preco : 0;
-    document.getElementById('summary-subtotal').innerHTML = 'R$ ' + subtotal.toFixed(2);
-    document.getElementById('summary-frete').innerHTML = 'R$ ' + frete.toFixed(2);
-    document.getElementById('summary-total').innerHTML = 'R$ ' + (subtotal + frete).toFixed(2);
+    
+    const subtotalEl = document.getElementById('summary-subtotal');
+    const freteEl = document.getElementById('summary-frete');
+    const totalEl = document.getElementById('summary-total');
+    
+    if (subtotalEl) subtotalEl.innerHTML = 'R$ ' + subtotal.toFixed(2);
+    if (freteEl) freteEl.innerHTML = 'R$ ' + frete.toFixed(2);
+    if (totalEl) totalEl.innerHTML = 'R$ ' + (subtotal + frete).toFixed(2);
 }
 
 function finalizarPedido() {
     const metodo = document.querySelector('input[name="payment"]:checked');
     if (!metodo) {
-        alert('Escolha o pagamento');
+        alert('Escolha o método de pagamento.');
         return;
     }
     checkoutData.payment = metodo.value;
@@ -385,7 +389,10 @@ function finalizarPedido() {
         total = total + (cart[i].price * cart[i].quantity);
     }
     total = total + (selectedShipping ? selectedShipping.preco : 0);
-    const num = '#' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    
+    // Atualizado para o método universal .substring() aceito no Mobile Safari/iOS
+    const num = '#' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    
     document.getElementById('order-number').innerHTML = num;
     document.getElementById('delivery-estimate').innerHTML = (selectedShipping ? selectedShipping.dias : 5) + ' dias úteis';
     document.getElementById('order-total').innerHTML = 'R$ ' + total.toFixed(2);
@@ -393,7 +400,7 @@ function finalizarPedido() {
     cart = [];
     salvarCarrinho();
     atualizarCarrinhoContador();
-    alert('Pedido finalizado!');
+    alert('Pedido finalizado com sucesso!');
 }
 
 window.finalizeOrder = finalizarPedido;
@@ -404,16 +411,18 @@ window.closeCheckout = function() {
     if (modal) modal.style.display = 'none';
 };
 
-// ========== LOGIN ==========
+// ========== LOGIN & SISTEMA DE USUÁRIO ==========
 function fazerLogin(email, senha) {
     const nome = email.split('@')[0];
     currentUser = { id: 1, nome: nome, email: email };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    
+    const plano = localStorage.getItem('userPlan');
+    if (plano) currentUserPlan = JSON.parse(plano);
+    
     atualizarInterfaceUsuario();
     if (loginModal) loginModal.style.display = 'none';
     alert('Bem-vindo, ' + nome + '!');
-    const plano = localStorage.getItem('userPlan');
-    if (plano) currentUserPlan = JSON.parse(plano);
 }
 
 function cadastrar(nome, email, senha) {
@@ -430,11 +439,12 @@ function atualizarInterfaceUsuario() {
     const logoutBtn = document.getElementById('logout-btn');
     const myOrdersBtn = document.getElementById('my-orders-btn');
     const myPlanBtn = document.getElementById('my-plan-btn');
+    
     if (currentUser) {
         if (userName) userName.textContent = currentUser.nome;
         if (userAvatar) userAvatar.textContent = currentUser.nome.charAt(0).toUpperCase();
         if (userGreeting) {
-            let planoTexto = currentUserPlan ? ' 🎉 (' + currentUserPlan.plano + ')' : '';
+            let planoTexto = currentUserPlan ? ' 🎉 (' + currentUserPlan.plano.toUpperCase() + ')' : '';
             userGreeting.innerHTML = 'Olá, ' + currentUser.nome + planoTexto;
         }
         if (loginBtn) loginBtn.style.display = 'none';
@@ -482,47 +492,73 @@ function fecharDropdown() {
     if (dropdown) dropdown.classList.remove('show');
 }
 
-// ========== CONFIGURAÇÃO DE EVENTOS ==========
+// ========== CONFIGURAÇÃO DE EVENTOS GLOBAIS ==========
 function configurarEventos() {
+    // Interceptação via delegação de eventos para clicks sem falha no Touch Mobile
+    document.addEventListener('click', function(e) {
+        const target = e.target;
+        
+        // Botão Adicionar ao Carrinho (.add-to-cart)
+        if (target.classList.contains('add-to-cart') || target.closest('.add-to-cart')) {
+            const btn = target.classList.contains('add-to-cart') ? target : target.closest('.add-to-cart');
+            adicionarAoCarrinho(
+                btn.getAttribute('data-product-id'), 
+                btn.getAttribute('data-product'), 
+                parseFloat(btn.getAttribute('data-price'))
+            );
+        }
+    });
+
     if (cartIcon) cartIcon.addEventListener('click', abrirFecharCarrinho);
+    
     const closeCart = document.querySelector('.close-cart');
     if (closeCart) closeCart.addEventListener('click', abrirFecharCarrinho);
+    
     const checkoutBtn = document.getElementById('checkout-btn');
     if (checkoutBtn) checkoutBtn.addEventListener('click', finalizarCompra);
+    
     const userIcon = document.getElementById('user-icon');
     if (userIcon) userIcon.addEventListener('click', alternarDropdown);
+    
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) loginBtn.addEventListener('click', abrirLogin);
+    
     const cadastroBtn = document.getElementById('cadastro-btn');
     if (cadastroBtn) cadastroBtn.addEventListener('click', abrirCadastro);
+    
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
             currentUser = null;
+            currentUserPlan = null;
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('userPlan');
             atualizarInterfaceUsuario();
-            alert('Logout');
+            alert('Logout efetuado.');
         });
     }
+    
     const myPlanBtn = document.getElementById('my-plan-btn');
     if (myPlanBtn) {
         myPlanBtn.addEventListener('click', function() {
             if (currentUserPlan) {
-                alert('Plano ' + currentUserPlan.plano + ' - R$ ' + currentUserPlan.preco + '/mês');
+                alert('Plano ' + currentUserPlan.plano.toUpperCase() + ' - R$ ' + currentUserPlan.preco + '/mês');
             } else {
                 alert('Nenhum plano ativo. Acesse CONVÊNIO.');
             }
         });
     }
+    
     const closeBtns = document.querySelectorAll('.modal .close');
     for (let i = 0; i < closeBtns.length; i++) {
         closeBtns[i].addEventListener('click', function() {
-            if (loginModal) loginModal.style.display = 'none';
-            if (registerModal) registerModal.style.display = 'none';
+            fecharLogin();
+            fecharCadastro();
             const checkout = document.getElementById('checkout-modal');
             if (checkout) checkout.style.display = 'none';
         });
     }
+    
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -532,6 +568,7 @@ function configurarEventos() {
             fazerLogin(email, senha);
         });
     }
+    
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
@@ -542,6 +579,7 @@ function configurarEventos() {
             cadastrar(nome, email, senha);
         });
     }
+    
     const showRegisterLink = document.getElementById('show-register-link');
     if (showRegisterLink) {
         showRegisterLink.addEventListener('click', function(e) {
@@ -550,6 +588,8 @@ function configurarEventos() {
             abrirCadastro();
         });
     }
+    
+    // Fechar modais ao clicar fora
     window.addEventListener('click', function(e) {
         if (loginModal && e.target === loginModal) fecharLogin();
         if (registerModal && e.target === registerModal) fecharCadastro();
@@ -558,22 +598,17 @@ function configurarEventos() {
         if (checkoutModal && e.target === checkoutModal) checkoutModal.style.display = 'none';
         if (!e.target.closest('.user-menu')) fecharDropdown();
     });
-    configurarBotoesProdutos();
+    
     configurarCEP();
 }
 
+// ========== CONFIGURAÇÃO E EVENTO DE CEP (OTIMIZADO MOBILE) ==========
 function configurarCEP() {
     const cep = document.getElementById('cep');
     if (!cep) return;
-    cep.addEventListener('input', function(e) {
-        let v = e.target.value.replace(/\D/g, '');
-        if (v.length > 5) {
-            v = v.slice(0, 5) + '-' + v.slice(5, 8);
-        }
-        e.target.value = v;
-    });
-    cep.addEventListener('blur', async function() {
-        let v = cep.value.replace(/\D/g, '');
+    
+    async function buscarCEP(valor) {
+        let v = valor.replace(/\D/g, '');
         if (v.length === 8) {
             try {
                 const resposta = await fetch('https://viacep.com.br/ws/' + v + '/json/');
@@ -587,12 +622,31 @@ function configurarCEP() {
                     if (bairro) bairro.value = data.bairro || '';
                     if (cidade) cidade.value = data.localidade || '';
                     if (estado) estado.value = data.uf || '';
+                } else {
+                    console.log('CEP não encontrado.');
                 }
             } catch (err) {
-                console.log(err);
+                console.log('Erro na requisição do ViaCEP:', err);
             }
         }
+    }
+
+    cep.addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 5) {
+            v = v.slice(0, 5) + '-' + v.slice(5, 8);
+        }
+        e.target.value = v;
+
+        // Mobile Friendly: Ao terminar de digitar os 8 números corretos (9 caracteres com o traço), executa direto.
+        if (v.length === 9) {
+            buscarCEP(v);
+        }
+    });
+    
+    cep.addEventListener('blur', function() {
+        buscarCEP(cep.value);
     });
 }
 
-console.log('✅ UNIPETS funcionando!');
+console.log('✅ UNIPETS funcionando e pronto para rodar!');
