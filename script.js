@@ -1,4 +1,4 @@
-// ========== UNIPETS - VERSÃO MOBILE 100% ==========
+// ========== UNIPETS - VERSÃO ESTÁVEL (PC + MOBILE) ==========
 console.log('🚀 UNIPETS iniciando...');
 
 // Estado
@@ -24,13 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarBusca();
 });
 
-// ========== CRIA MODAIS SE NÃO EXISTIREM ==========
+// ========== MODAIS ==========
 function criarModais() {
     if (!document.getElementById('cart-modal')) {
         cartModal = document.createElement('div');
         cartModal.id = 'cart-modal';
         cartModal.className = 'modal cart-modal';
-        cartModal.innerHTML = `<div class="modal-content"><span class="close-cart">&times;</span><h2>Seu Carrinho</h2><div id="cart-items"></div><div class="cart-total"><strong>Total:</strong> R$ <span id="cart-total">0,00</span></div><button id="checkout-btn" class="btn-primary">Finalizar Compra</button></div>`;
+        cartModal.innerHTML = '<div class="modal-content"><span class="close-cart">&times;</span><h2>Seu Carrinho</h2><div id="cart-items"></div><div class="cart-total"><strong>Total:</strong> R$ <span id="cart-total">0,00</span></div><button id="checkout-btn" class="btn-primary">Finalizar Compra</button></div>';
         document.body.appendChild(cartModal);
     } else {
         cartModal = document.getElementById('cart-modal');
@@ -39,11 +39,11 @@ function criarModais() {
     registerModal = document.getElementById('register-modal');
 }
 
-// ========== FILTROS (funciona no mobile) ==========
+// ========== FILTROS ==========
 function configurarFiltros() {
     const botoes = document.querySelectorAll('.cat-btn');
     const produtos = document.querySelectorAll('.menu .box');
-    if (!botoes.length) return;
+    if (botoes.length === 0) return;
 
     function aplicarFiltro(categoria) {
         produtos.forEach(prod => {
@@ -76,6 +76,10 @@ function configurarBusca() {
             input.style.display = 'none';
             input.value = '';
             document.querySelectorAll('.menu .box').forEach(p => p.style.display = 'flex');
+            document.querySelectorAll('.cat-btn').forEach(btn2 => {
+                if (btn2.getAttribute('data-cat') === 'todos') btn2.classList.add('active');
+                else btn2.classList.remove('active');
+            });
         }
     });
     input.addEventListener('keyup', () => {
@@ -87,7 +91,7 @@ function configurarBusca() {
     });
 }
 
-// ========== PLANOS (convênio) ==========
+// ========== PLANOS ==========
 window.assinarPlano = function(plano) {
     console.log('Assinando plano:', plano);
     if (!currentUser) {
@@ -95,34 +99,47 @@ window.assinarPlano = function(plano) {
         if (loginModal) loginModal.style.display = 'block';
         return;
     }
-    let preco = 0, beneficios = '';
-    if (plano === 'basico') { preco = 29.90; beneficios = '1 banho/mês, 10% off'; }
-    else if (plano === 'premium') { preco = 59.90; beneficios = '2 banhos/mês, 20% off, prioridade'; }
-    else { preco = 99.90; beneficios = 'Banhos ilimitados, 30% off, corte grátis'; }
-    if (confirm(`Confirmar Plano ${plano.toUpperCase()} - R$ ${preco}/mês?\n\n${beneficios}\n\n*UNIPETS não cobre consultas.`)) {
-        currentUserPlan = { plano, preco, dataAssinatura: new Date().toISOString() };
+    let preco = 0;
+    let beneficios = '';
+    if (plano === 'basico') {
+        preco = 29.90;
+        beneficios = '1 banho/mês, 10% off';
+    } else if (plano === 'premium') {
+        preco = 59.90;
+        beneficios = '2 banhos/mês, 20% off, prioridade';
+    } else {
+        preco = 99.90;
+        beneficios = 'Banhos ilimitados, 30% off, corte grátis';
+    }
+    if (confirm('Confirmar Plano ' + plano.toUpperCase() + ' - R$ ' + preco + '/mês?\n\n' + beneficios + '\n\n*UNIPETS não cobre consultas.')) {
+        currentUserPlan = { plano: plano, preco: preco, dataAssinatura: new Date().toISOString() };
         localStorage.setItem('userPlan', JSON.stringify(currentUserPlan));
-        alert(`✅ Plano ${plano.toUpperCase()} ativado!`);
+        alert('✅ Plano ' + plano.toUpperCase() + ' ativado!');
         atualizarInterfaceUsuario();
     }
 };
 
 function calcularPrecoComDesconto(preco) {
     if (!currentUserPlan) return preco;
-    const descontos = { basico: 0.1, premium: 0.2, vip: 0.3 };
-    return preco * (1 - (descontos[currentUserPlan.plano] || 0));
+    if (currentUserPlan.plano === 'basico') return preco * 0.9;
+    if (currentUserPlan.plano === 'premium') return preco * 0.8;
+    if (currentUserPlan.plano === 'vip') return preco * 0.7;
+    return preco;
 }
 
 // ========== CARRINHO ==========
 function adicionarAoCarrinho(id, nome, preco) {
     const existente = cart.find(item => item.id === id);
     const precoFinal = currentUserPlan ? calcularPrecoComDesconto(preco) : preco;
-    if (existente) existente.quantity++;
-    else cart.push({ id, name: nome, price: precoFinal, priceOriginal: preco, quantity: 1 });
+    if (existente) {
+        existente.quantity = existente.quantity + 1;
+    } else {
+        cart.push({ id: id, name: nome, price: precoFinal, priceOriginal: preco, quantity: 1 });
+    }
     salvarCarrinho();
     atualizarCarrinhoContador();
     atualizarModalCarrinho();
-    alert(`${nome} adicionado!`);
+    alert(nome + ' adicionado!');
 }
 
 function removerDoCarrinho(id) {
@@ -135,141 +152,275 @@ function removerDoCarrinho(id) {
 function alterarQuantidade(id, delta) {
     const item = cart.find(i => i.id === id);
     if (item) {
-        item.quantity += delta;
-        if (item.quantity <= 0) removerDoCarrinho(id);
-        else { salvarCarrinho(); atualizarCarrinhoContador(); atualizarModalCarrinho(); }
+        item.quantity = item.quantity + delta;
+        if (item.quantity <= 0) {
+            removerDoCarrinho(id);
+        } else {
+            salvarCarrinho();
+            atualizarCarrinhoContador();
+            atualizarModalCarrinho();
+        }
     }
 }
 
 function atualizarCarrinhoContador() {
-    if (cartCounter) cartCounter.textContent = cart.reduce((s, i) => s + i.quantity, 0);
+    if (cartCounter) {
+        let total = 0;
+        for (let i = 0; i < cart.length; i++) {
+            total = total + cart[i].quantity;
+        }
+        cartCounter.textContent = total;
+    }
 }
 
 function atualizarModalCarrinho() {
     const div = document.getElementById('cart-items');
     const totalSpan = document.getElementById('cart-total');
     if (!div) return;
-    if (!cart.length) { div.innerHTML = '<p style="text-align:center;">Carrinho vazio</p>'; if (totalSpan) totalSpan.textContent = '0,00'; return; }
+    if (cart.length === 0) {
+        div.innerHTML = '<p style="text-align:center;">Carrinho vazio</p>';
+        if (totalSpan) totalSpan.textContent = '0,00';
+        return;
+    }
     let total = 0;
-    div.innerHTML = cart.map(item => {
+    let html = '';
+    for (let i = 0; i < cart.length; i++) {
+        const item = cart[i];
         const sub = item.price * item.quantity;
-        total += sub;
-        return `<div class="cart-item"><div><h4>${item.name}</h4><p>R$ ${item.price.toFixed(2)}</p></div><div><button onclick="alterarQuantidade('${item.id}', -1)">-</button> ${item.quantity} <button onclick="alterarQuantidade('${item.id}', 1)">+</button> <button onclick="removerDoCarrinho('${item.id}')">🗑️</button></div></div>`;
-    }).join('');
+        total = total + sub;
+        html = html + '<div class="cart-item"><div class="cart-item-info"><h4>' + item.name + '</h4><p>R$ ' + item.price.toFixed(2) + '</p></div><div class="cart-item-actions"><button class="quantity-btn" onclick="alterarQuantidade(\'' + item.id + '\', -1)">-</button><span>' + item.quantity + '</span><button class="quantity-btn" onclick="alterarQuantidade(\'' + item.id + '\', 1)">+</button><button onclick="removerDoCarrinho(\'' + item.id + '\')" style="background:none; border:none; color:red;">🗑️</button></div></div>';
+    }
+    div.innerHTML = html;
     if (totalSpan) totalSpan.textContent = total.toFixed(2);
 }
 
 function abrirFecharCarrinho() {
     if (!cartModal) return;
-    const visivel = cartModal.style.display === 'block';
-    cartModal.style.display = visivel ? 'none' : 'block';
-    if (!visivel) atualizarModalCarrinho();
+    if (cartModal.style.display === 'block') {
+        cartModal.style.display = 'none';
+    } else {
+        atualizarModalCarrinho();
+        cartModal.style.display = 'block';
+    }
 }
 
-function salvarCarrinho() { localStorage.setItem('cart', JSON.stringify(cart)); }
+function salvarCarrinho() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
 
 function configurarBotoesProdutos() {
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
+    const botoes = document.querySelectorAll('.add-to-cart');
+    for (let i = 0; i < botoes.length; i++) {
+        const btn = botoes[i];
         btn.removeEventListener('click', handlerProduto);
         btn.addEventListener('click', handlerProduto);
-    });
+    }
 }
+
 function handlerProduto(e) {
     const btn = e.currentTarget;
-    adicionarAoCarrinho(btn.dataset.productId, btn.dataset.product, parseFloat(btn.dataset.price));
+    adicionarAoCarrinho(btn.getAttribute('data-product-id'), btn.getAttribute('data-product'), parseFloat(btn.getAttribute('data-price')));
 }
 
 // ========== CHECKOUT ==========
 function finalizarCompra() {
-    if (!cart.length) { alert('Carrinho vazio'); return; }
-    if (!currentUser) { alert('Faça login'); abrirFecharCarrinho(); if (loginModal) loginModal.style.display = 'block'; return; }
+    if (cart.length === 0) {
+        alert('Carrinho vazio');
+        return;
+    }
+    if (!currentUser) {
+        alert('Faça login para finalizar');
+        abrirFecharCarrinho();
+        if (loginModal) loginModal.style.display = 'block';
+        return;
+    }
     abrirFecharCarrinho();
-    setTimeout(() => { const modal = document.getElementById('checkout-modal'); if (modal) modal.style.display = 'block'; resetarCheckout(); }, 200);
+    setTimeout(function() {
+        const modal = document.getElementById('checkout-modal');
+        if (modal) modal.style.display = 'block';
+        resetarCheckout();
+    }, 200);
 }
-function resetarCheckout() { checkoutData = { address: null, shipping: null, payment: null }; selectedShipping = null; irParaStep(1); atualizarResumo(); }
+
+function resetarCheckout() {
+    checkoutData = { address: null, shipping: null, payment: null };
+    selectedShipping = null;
+    irParaStep(1);
+    atualizarResumo();
+}
+
 function irParaStep(step) {
-    document.querySelectorAll('.checkout-step').forEach(s => s.style.display = 'none');
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById(`step-${step}`);
-    const indicador = document.querySelector(`[data-step="${step}"]`);
+    const steps = document.querySelectorAll('.checkout-step');
+    for (let i = 0; i < steps.length; i++) {
+        steps[i].style.display = 'none';
+    }
+    const stepsIndicator = document.querySelectorAll('.step');
+    for (let i = 0; i < stepsIndicator.length; i++) {
+        stepsIndicator[i].classList.remove('active');
+    }
+    const el = document.getElementById('step-' + step);
+    const indicador = document.querySelector('[data-step="' + step + '"]');
     if (el) el.style.display = 'block';
     if (indicador) indicador.classList.add('active');
 }
+
 function proximoStep(next) {
-    if (next === 2) { if (!validarEndereco()) { alert('Preencha o endereço'); return; } salvarEndereco(); calcularFrete(); }
-    if (next === 3) { if (!selectedShipping) { alert('Selecione o frete'); return; } checkoutData.shipping = selectedShipping; atualizarResumo(); }
+    if (next === 2) {
+        if (!validarEndereco()) {
+            alert('Preencha o endereço');
+            return;
+        }
+        salvarEndereco();
+        calcularFrete();
+    }
+    if (next === 3) {
+        if (!selectedShipping) {
+            alert('Selecione o frete');
+            return;
+        }
+        checkoutData.shipping = selectedShipping;
+        atualizarResumo();
+    }
     irParaStep(next);
 }
-function stepAnterior(prev) { irParaStep(prev); }
-function validarEndereco() { return ['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado'].every(id => document.getElementById(id)?.value.trim()); }
-function salvarEndereco() { checkoutData.address = { cep: document.getElementById('cep').value, logradouro: document.getElementById('logradouro').value, numero: document.getElementById('numero').value, complemento: document.getElementById('complemento').value, bairro: document.getElementById('bairro').value, cidade: document.getElementById('cidade').value, estado: document.getElementById('estado').value }; }
+
+function stepAnterior(prev) {
+    irParaStep(prev);
+}
+
+function validarEndereco() {
+    const campos = ['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado'];
+    for (let i = 0; i < campos.length; i++) {
+        const el = document.getElementById(campos[i]);
+        if (!el || !el.value.trim()) return false;
+    }
+    return true;
+}
+
+function salvarEndereco() {
+    checkoutData.address = {
+        cep: document.getElementById('cep').value,
+        logradouro: document.getElementById('logradouro').value,
+        numero: document.getElementById('numero').value,
+        complemento: document.getElementById('complemento').value,
+        bairro: document.getElementById('bairro').value,
+        cidade: document.getElementById('cidade').value,
+        estado: document.getElementById('estado').value
+    };
+}
+
 function calcularFrete() {
     const div = document.getElementById('shipping-options');
     if (!div) return;
-    const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    let subtotal = 0;
+    for (let i = 0; i < cart.length; i++) {
+        subtotal = subtotal + (cart[i].price * cart[i].quantity);
+    }
     let opcoes = [
         { nome: 'Econômica', preco: 15.90, dias: '7-10' },
         { nome: 'Padrão', preco: 24.90, dias: '3-5' },
         { nome: 'Expressa', preco: 39.90, dias: '1-2' }
     ];
-    if (subtotal > 200 || currentUserPlan?.plano === 'vip') opcoes.unshift({ nome: 'Grátis', preco: 0, dias: '5-7' });
-    div.innerHTML = opcoes.map((opt, idx) => `<div class="shipping-option ${idx === 1 ? 'selected' : ''}" onclick="selecionarFrete(${idx})"><input type="radio" name="shipping" ${idx === 1 ? 'checked' : ''}><div><strong>${opt.nome}</strong><div>${opt.dias} dias úteis</div></div><div>${opt.preco === 0 ? 'GRÁTIS' : `R$ ${opt.preco.toFixed(2)}`}</div></div>`).join('');
+    if (subtotal > 200 || (currentUserPlan && currentUserPlan.plano === 'vip')) {
+        opcoes.unshift({ nome: 'Grátis', preco: 0, dias: '5-7' });
+    }
+    let html = '';
+    for (let i = 0; i < opcoes.length; i++) {
+        const opt = opcoes[i];
+        let precoTexto = opt.preco === 0 ? 'GRÁTIS' : 'R$ ' + opt.preco.toFixed(2);
+        let selectedClass = (i === 1) ? 'selected' : '';
+        if (opt.preco === 0) selectedClass = 'selected';
+        html = html + '<div class="shipping-option ' + selectedClass + '" onclick="selecionarFrete(' + i + ')"><input type="radio" name="shipping" ' + (selectedClass ? 'checked' : '') + '><div class="shipping-info"><div><strong>' + opt.nome + '</strong><div class="shipping-time">' + opt.dias + ' dias úteis</div></div><div class="shipping-price">' + precoTexto + '</div></div></div>';
+    }
+    div.innerHTML = html;
     selectedShipping = opcoes[1];
     if (opcoes[0].preco === 0) selectedShipping = opcoes[0];
 }
+
 window.selecionarFrete = function(idx) {
     const opcoes = [];
-    document.querySelectorAll('.shipping-option').forEach(opt => {
+    const optionsDivs = document.querySelectorAll('.shipping-option');
+    for (let i = 0; i < optionsDivs.length; i++) {
+        const opt = optionsDivs[i];
         const nome = opt.querySelector('strong')?.innerText || '';
-        const precoTxt = opt.querySelector('div:last-child')?.innerText || 'R$ 0';
+        const precoTxt = opt.querySelector('.shipping-price')?.innerText || 'R$ 0';
         let preco = 0;
-        if (precoTxt !== 'GRÁTIS') preco = parseFloat(precoTxt.replace('R$', '').replace(',', '.'));
+        if (precoTxt !== 'GRÁTIS') {
+            preco = parseFloat(precoTxt.replace('R$', '').replace(',', '.'));
+        }
         const dias = opt.innerText.match(/\d+/)?.[0] || '5';
-        opcoes.push({ nome, preco, dias });
-    });
+        opcoes.push({ nome: nome, preco: preco, dias: dias });
+    }
     selectedShipping = opcoes[idx];
-    document.querySelectorAll('.shipping-option').forEach((opt, i) => { if (i === idx) opt.classList.add('selected'); else opt.classList.remove('selected'); });
+    for (let i = 0; i < optionsDivs.length; i++) {
+        if (i === idx) {
+            optionsDivs[i].classList.add('selected');
+        } else {
+            optionsDivs[i].classList.remove('selected');
+        }
+    }
     atualizarResumo();
 };
+
 function atualizarResumo() {
-    const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-    const frete = selectedShipping?.preco || 0;
-    document.getElementById('summary-subtotal').innerHTML = `R$ ${subtotal.toFixed(2)}`;
-    document.getElementById('summary-frete').innerHTML = `R$ ${frete.toFixed(2)}`;
-    document.getElementById('summary-total').innerHTML = `R$ ${(subtotal + frete).toFixed(2)}`;
+    let subtotal = 0;
+    for (let i = 0; i < cart.length; i++) {
+        subtotal = subtotal + (cart[i].price * cart[i].quantity);
+    }
+    const frete = selectedShipping ? selectedShipping.preco : 0;
+    document.getElementById('summary-subtotal').innerHTML = 'R$ ' + subtotal.toFixed(2);
+    document.getElementById('summary-frete').innerHTML = 'R$ ' + frete.toFixed(2);
+    document.getElementById('summary-total').innerHTML = 'R$ ' + (subtotal + frete).toFixed(2);
 }
+
 function finalizarPedido() {
-    const metodo = document.querySelector('input[name="payment"]:checked')?.value;
-    if (!metodo) { alert('Escolha o pagamento'); return; }
-    checkoutData.payment = metodo;
-    const total = cart.reduce((s, i) => s + i.price * i.quantity, 0) + (selectedShipping?.preco || 0);
+    const metodo = document.querySelector('input[name="payment"]:checked');
+    if (!metodo) {
+        alert('Escolha o pagamento');
+        return;
+    }
+    checkoutData.payment = metodo.value;
+    let total = 0;
+    for (let i = 0; i < cart.length; i++) {
+        total = total + (cart[i].price * cart[i].quantity);
+    }
+    total = total + (selectedShipping ? selectedShipping.preco : 0);
     const num = '#' + Math.random().toString(36).substr(2, 8).toUpperCase();
     document.getElementById('order-number').innerHTML = num;
-    document.getElementById('delivery-estimate').innerHTML = `${selectedShipping?.dias || 5} dias úteis`;
-    document.getElementById('order-total').innerHTML = `R$ ${total.toFixed(2)}`;
+    document.getElementById('delivery-estimate').innerHTML = (selectedShipping ? selectedShipping.dias : 5) + ' dias úteis';
+    document.getElementById('order-total').innerHTML = 'R$ ' + total.toFixed(2);
     irParaStep(4);
     cart = [];
     salvarCarrinho();
     atualizarCarrinhoContador();
     alert('Pedido finalizado!');
 }
+
 window.finalizeOrder = finalizarPedido;
 window.nextStep = proximoStep;
 window.prevStep = stepAnterior;
-window.closeCheckout = () => { const modal = document.getElementById('checkout-modal'); if (modal) modal.style.display = 'none'; };
+window.closeCheckout = function() {
+    const modal = document.getElementById('checkout-modal');
+    if (modal) modal.style.display = 'none';
+};
 
 // ========== LOGIN ==========
 function fazerLogin(email, senha) {
     const nome = email.split('@')[0];
-    currentUser = { id: 1, nome, email };
+    currentUser = { id: 1, nome: nome, email: email };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     atualizarInterfaceUsuario();
     if (loginModal) loginModal.style.display = 'none';
-    alert(`Bem-vindo, ${nome}!`);
+    alert('Bem-vindo, ' + nome + '!');
     const plano = localStorage.getItem('userPlan');
     if (plano) currentUserPlan = JSON.parse(plano);
 }
-function cadastrar(nome, email, senha) { fazerLogin(email, senha); if (registerModal) registerModal.style.display = 'none'; }
+
+function cadastrar(nome, email, senha) {
+    fazerLogin(email, senha);
+    if (registerModal) registerModal.style.display = 'none';
+}
+
 function atualizarInterfaceUsuario() {
     const userName = document.getElementById('user-name');
     const userAvatar = document.getElementById('user-avatar');
@@ -282,7 +433,10 @@ function atualizarInterfaceUsuario() {
     if (currentUser) {
         if (userName) userName.textContent = currentUser.nome;
         if (userAvatar) userAvatar.textContent = currentUser.nome.charAt(0).toUpperCase();
-        if (userGreeting) userGreeting.innerHTML = `Olá, ${currentUser.nome}${currentUserPlan ? ` 🎉 (${currentUserPlan.plano})` : ''}`;
+        if (userGreeting) {
+            let planoTexto = currentUserPlan ? ' 🎉 (' + currentUserPlan.plano + ')' : '';
+            userGreeting.innerHTML = 'Olá, ' + currentUser.nome + planoTexto;
+        }
         if (loginBtn) loginBtn.style.display = 'none';
         if (cadastroBtn) cadastroBtn.style.display = 'none';
         if (logoutBtn) logoutBtn.style.display = 'block';
@@ -299,57 +453,109 @@ function atualizarInterfaceUsuario() {
         if (myPlanBtn) myPlanBtn.style.display = 'none';
     }
 }
-function abrirLogin() { if (loginModal) loginModal.style.display = 'block'; fecharDropdown(); }
-function fecharLogin() { if (loginModal) loginModal.style.display = 'none'; }
-function abrirCadastro() { if (registerModal) registerModal.style.display = 'block'; fecharDropdown(); }
-function fecharCadastro() { if (registerModal) registerModal.style.display = 'none'; }
-function alternarDropdown() { document.getElementById('user-dropdown')?.classList.toggle('show'); }
-function fecharDropdown() { document.getElementById('user-dropdown')?.classList.remove('show'); }
+
+function abrirLogin() {
+    if (loginModal) loginModal.style.display = 'block';
+    fecharDropdown();
+}
+
+function fecharLogin() {
+    if (loginModal) loginModal.style.display = 'none';
+}
+
+function abrirCadastro() {
+    if (registerModal) registerModal.style.display = 'block';
+    fecharDropdown();
+}
+
+function fecharCadastro() {
+    if (registerModal) registerModal.style.display = 'none';
+}
+
+function alternarDropdown() {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) dropdown.classList.toggle('show');
+}
+
+function fecharDropdown() {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) dropdown.classList.remove('show');
+}
 
 // ========== CONFIGURAÇÃO DE EVENTOS ==========
 function configurarEventos() {
     if (cartIcon) cartIcon.addEventListener('click', abrirFecharCarrinho);
-    document.querySelector('.close-cart')?.addEventListener('click', abrirFecharCarrinho);
-    document.getElementById('checkout-btn')?.addEventListener('click', finalizarCompra);
-    document.getElementById('user-icon')?.addEventListener('click', alternarDropdown);
-    document.getElementById('login-btn')?.addEventListener('click', abrirLogin);
-    document.getElementById('cadastro-btn')?.addEventListener('click', abrirCadastro);
-    document.getElementById('logout-btn')?.addEventListener('click', () => {
-        currentUser = null;
-        localStorage.removeItem('currentUser');
-        atualizarInterfaceUsuario();
-        alert('Logout');
-    });
-    document.getElementById('my-plan-btn')?.addEventListener('click', () => {
-        if (currentUserPlan) alert(`Plano ${currentUserPlan.plano} - R$ ${currentUserPlan.preco}/mês`);
-        else alert('Nenhum plano ativo. Acesse CONVÊNIO.');
-    });
-    document.querySelectorAll('.modal .close').forEach(btn => {
-        btn.addEventListener('click', () => {
+    const closeCart = document.querySelector('.close-cart');
+    if (closeCart) closeCart.addEventListener('click', abrirFecharCarrinho);
+    const checkoutBtn = document.getElementById('checkout-btn');
+    if (checkoutBtn) checkoutBtn.addEventListener('click', finalizarCompra);
+    const userIcon = document.getElementById('user-icon');
+    if (userIcon) userIcon.addEventListener('click', alternarDropdown);
+    const loginBtn = document.getElementById('login-btn');
+    if (loginBtn) loginBtn.addEventListener('click', abrirLogin);
+    const cadastroBtn = document.getElementById('cadastro-btn');
+    if (cadastroBtn) cadastroBtn.addEventListener('click', abrirCadastro);
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            atualizarInterfaceUsuario();
+            alert('Logout');
+        });
+    }
+    const myPlanBtn = document.getElementById('my-plan-btn');
+    if (myPlanBtn) {
+        myPlanBtn.addEventListener('click', function() {
+            if (currentUserPlan) {
+                alert('Plano ' + currentUserPlan.plano + ' - R$ ' + currentUserPlan.preco + '/mês');
+            } else {
+                alert('Nenhum plano ativo. Acesse CONVÊNIO.');
+            }
+        });
+    }
+    const closeBtns = document.querySelectorAll('.modal .close');
+    for (let i = 0; i < closeBtns.length; i++) {
+        closeBtns[i].addEventListener('click', function() {
             if (loginModal) loginModal.style.display = 'none';
             if (registerModal) registerModal.style.display = 'none';
             const checkout = document.getElementById('checkout-modal');
             if (checkout) checkout.style.display = 'none';
         });
-    });
-    document.getElementById('login-form')?.addEventListener('submit', e => {
-        e.preventDefault();
-        fazerLogin(document.getElementById('login-email').value, document.getElementById('login-password').value);
-    });
-    document.getElementById('register-form')?.addEventListener('submit', e => {
-        e.preventDefault();
-        cadastrar(document.getElementById('reg-name').value, document.getElementById('reg-email').value, document.getElementById('reg-password').value);
-    });
-    document.getElementById('show-register-link')?.addEventListener('click', e => {
-        e.preventDefault();
-        fecharLogin();
-        abrirCadastro();
-    });
-    window.addEventListener('click', e => {
+    }
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-password').value;
+            fazerLogin(email, senha);
+        });
+    }
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nome = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const senha = document.getElementById('reg-password').value;
+            cadastrar(nome, email, senha);
+        });
+    }
+    const showRegisterLink = document.getElementById('show-register-link');
+    if (showRegisterLink) {
+        showRegisterLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            fecharLogin();
+            abrirCadastro();
+        });
+    }
+    window.addEventListener('click', function(e) {
         if (loginModal && e.target === loginModal) fecharLogin();
         if (registerModal && e.target === registerModal) fecharCadastro();
         if (cartModal && e.target === cartModal) abrirFecharCarrinho();
-        if (e.target === document.getElementById('checkout-modal')) document.getElementById('checkout-modal').style.display = 'none';
+        const checkoutModal = document.getElementById('checkout-modal');
+        if (checkoutModal && e.target === checkoutModal) checkoutModal.style.display = 'none';
         if (!e.target.closest('.user-menu')) fecharDropdown();
     });
     configurarBotoesProdutos();
@@ -359,26 +565,34 @@ function configurarEventos() {
 function configurarCEP() {
     const cep = document.getElementById('cep');
     if (!cep) return;
-    cep.addEventListener('input', e => {
+    cep.addEventListener('input', function(e) {
         let v = e.target.value.replace(/\D/g, '');
-        if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5, 8);
+        if (v.length > 5) {
+            v = v.slice(0, 5) + '-' + v.slice(5, 8);
+        }
         e.target.value = v;
     });
-    cep.addEventListener('blur', async () => {
+    cep.addEventListener('blur', async function() {
         let v = cep.value.replace(/\D/g, '');
         if (v.length === 8) {
             try {
-                const res = await fetch(`https://viacep.com.br/ws/${v}/json/`);
-                const data = await res.json();
+                const resposta = await fetch('https://viacep.com.br/ws/' + v + '/json/');
+                const data = await resposta.json();
                 if (!data.erro) {
-                    document.getElementById('logradouro').value = data.logradouro || '';
-                    document.getElementById('bairro').value = data.bairro || '';
-                    document.getElementById('cidade').value = data.localidade || '';
-                    document.getElementById('estado').value = data.uf || '';
+                    const logradouro = document.getElementById('logradouro');
+                    const bairro = document.getElementById('bairro');
+                    const cidade = document.getElementById('cidade');
+                    const estado = document.getElementById('estado');
+                    if (logradouro) logradouro.value = data.logradouro || '';
+                    if (bairro) bairro.value = data.bairro || '';
+                    if (cidade) cidade.value = data.localidade || '';
+                    if (estado) estado.value = data.uf || '';
                 }
-            } catch (err) { console.log(err); }
+            } catch (err) {
+                console.log(err);
+            }
         }
     });
 }
 
-console.log('✅ UNIPETS mobile final');
+console.log('✅ UNIPETS funcionando!');
