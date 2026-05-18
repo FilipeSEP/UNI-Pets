@@ -5,13 +5,14 @@ let selectedShipping = null;
 let checkoutData = { address: null, shipping: null, payment: null };
 let currentUserPlan = JSON.parse(localStorage.getItem('userPlan')) || null;
 
-// ========== ELEMENTOS DO DOM ==========
+// ========== ELEMENTOS ==========
 const cartIcon = document.getElementById('cart-icon');
 const cartCounter = document.getElementById('cart-counter');
 let cartModal, loginModal, registerModal;
 
-// ========== INICIALIZAÇÃO ==========
+// ========== INICIALIZAÇÃO FORÇADA ==========
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 UNIPETS iniciando...');
     initializeModals();
     updateCartCounter();
     updateUserInterface();
@@ -20,51 +21,52 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSearch();
 });
 
-// ========== FILTROS POR CATEGORIA (MOBILE) ==========
+// ========== FILTROS POR CATEGORIA (100% mobile) ==========
 function setupCategoryFilters() {
     const botoes = document.querySelectorAll('.cat-btn');
     const produtos = document.querySelectorAll('.menu .box');
 
-    if (!botoes.length || !produtos.length) return;
+    if (!botoes.length) {
+        console.warn('Nenhum botão de categoria encontrado');
+        return;
+    }
 
-    const aplicarFiltro = (categoria) => {
+    function filtrar(categoria) {
+        console.log('Filtrando:', categoria);
         produtos.forEach(produto => {
-            const categoriaProduto = produto.getAttribute('data-categoria');
-            if (categoria === 'todos' || categoriaProduto === categoria) {
+            const cat = produto.getAttribute('data-categoria');
+            if (categoria === 'todos' || cat === categoria) {
                 produto.style.display = 'flex';
             } else {
                 produto.style.display = 'none';
             }
         });
-    };
-
-    const ativarBotao = (botaoAtivo) => {
-        botoes.forEach(btn => btn.classList.remove('active'));
-        botaoAtivo.classList.add('active');
-        aplicarFiltro(botaoAtivo.getAttribute('data-cat'));
-    };
+    }
 
     botoes.forEach(botao => {
-        // Suporte para clique e toque
-        botao.addEventListener('click', (e) => {
+        // Remove eventos antigos para evitar duplicação
+        const novoBotao = botao.cloneNode(true);
+        botao.parentNode.replaceChild(novoBotao, botao);
+        
+        novoBotao.addEventListener('click', (e) => {
             e.preventDefault();
-            ativarBotao(botao);
-        });
-        botao.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            ativarBotao(botao);
+            const cat = novoBotao.getAttribute('data-cat');
+            // Remove active de todos
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            novoBotao.classList.add('active');
+            filtrar(cat);
         });
     });
 }
 
-// ========== BUSCA (MOBILE) ==========
+// ========== BUSCA ==========
 function setupSearch() {
     const searchBtn = document.getElementById('search-btn');
     const searchInput = document.getElementById('search-input');
 
-    if (!searchBtn || !searchInput) return;
+    if (!searchBtn) return;
 
-    const toggleSearch = () => {
+    const toggle = () => {
         if (searchInput.style.display === 'none') {
             searchInput.style.display = 'block';
             searchInput.focus();
@@ -75,25 +77,20 @@ function setupSearch() {
         }
     };
 
-    searchBtn.addEventListener('click', toggleSearch);
-    searchBtn.addEventListener('touchend', toggleSearch);
-
+    searchBtn.addEventListener('click', toggle);
     searchInput.addEventListener('keyup', (e) => {
         const termo = e.target.value.toLowerCase();
         const produtos = document.querySelectorAll('.menu .box');
-        produtos.forEach(produto => {
-            const nome = produto.querySelector('h3')?.innerText.toLowerCase() || '';
-            produto.style.display = nome.includes(termo) ? 'flex' : 'none';
+        produtos.forEach(prod => {
+            const nome = prod.querySelector('h3')?.innerText.toLowerCase() || '';
+            prod.style.display = nome.includes(termo) ? 'flex' : 'none';
         });
     });
 }
 
 function mostrarTodosProdutos() {
-    const produtos = document.querySelectorAll('.menu .box');
-    produtos.forEach(produto => produto.style.display = 'flex');
-
-    const botoes = document.querySelectorAll('.cat-btn');
-    botoes.forEach(btn => {
+    document.querySelectorAll('.menu .box').forEach(prod => prod.style.display = 'flex');
+    document.querySelectorAll('.cat-btn').forEach(btn => {
         if (btn.dataset.cat === 'todos') btn.classList.add('active');
         else btn.classList.remove('active');
     });
@@ -109,7 +106,7 @@ function initializeModals() {
 // ========== CONVÊNIO ==========
 window.assinarPlano = function(plano) {
     if (!currentUser) {
-        alert('Faça login para assinar um plano!');
+        alert('Faça login para assinar!');
         showLoginModal();
         return;
     }
@@ -141,7 +138,7 @@ function addToCart(productId, productName, productPrice) {
     updateCartCounter();
     saveCart();
     updateCartModal();
-    showNotification(`${productName} adicionado!${currentUserPlan ? ' (desconto assinante)' : ''}`);
+    alert(`${productName} adicionado!`);
 }
 
 function removeFromCart(productId) {
@@ -173,21 +170,7 @@ function updateCartModal() {
     div.innerHTML = cart.map(item => {
         const sub = item.price * item.quantity;
         total += sub;
-        const desconto = item.priceOriginal && item.priceOriginal > item.price;
-        return `
-            <div class="cart-item">
-                <div class="cart-item-info">
-                    <h4>${item.name}</h4>
-                    ${desconto ? `<p><s>R$ ${item.priceOriginal.toFixed(2)}</s> <span style="color:#28a745;">R$ ${item.price.toFixed(2)}</span></p>` : `<p>R$ ${item.price.toFixed(2)}</p>`}
-                </div>
-                <div class="cart-item-actions">
-                    <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
-                    <span>${item.quantity}</span>
-                    <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
-                    <button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:red; font-size:18px;">🗑️</button>
-                </div>
-            </div>
-        `;
+        return `<div class="cart-item"><div class="cart-item-info"><h4>${item.name}</h4><p>R$ ${item.price.toFixed(2)}</p></div><div class="cart-item-actions"><button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button><span>${item.quantity}</span><button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button><button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:red;">🗑️</button></div></div>`;
     }).join('');
     if (totalSpan) totalSpan.textContent = total.toFixed(2);
 }
@@ -203,9 +186,7 @@ function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
 function atribuirEventosProdutos() {
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.removeEventListener('click', addToCartHandler);
-        btn.removeEventListener('touchend', addToCartHandler);
         btn.addEventListener('click', addToCartHandler);
-        btn.addEventListener('touchend', addToCartHandler);
     });
 }
 function addToCartHandler(e) {
@@ -262,7 +243,7 @@ function calculateShipping() {
     ];
     if (subtotal > 200 || currentUserPlan?.plano === 'vip') opcoes.unshift({ nome: 'Grátis', preco: 0, dias: '5-7' });
     div.innerHTML = opcoes.map((opt, idx) => `
-        <div class="shipping-option ${idx === 1 && !opt.preco ? '' : idx === 1 ? 'selected' : ''}" onclick="selectShipping(${idx})">
+        <div class="shipping-option ${idx === 1 ? 'selected' : ''}" onclick="selectShipping(${idx})">
             <input type="radio" name="shipping" ${idx === 1 ? 'checked' : ''}>
             <div class="shipping-info">
                 <div><strong>${opt.nome}</strong><div class="shipping-time">${opt.dias} dias úteis</div></div>
@@ -310,17 +291,17 @@ function finalizeOrder() {
     cart = [];
     updateCartCounter();
     saveCart();
-    showNotification('Pedido finalizado!');
+    alert('Pedido finalizado!');
 }
 
-// ========== LOGIN / USUÁRIO ==========
+// ========== LOGIN ==========
 function fazerLogin(email, senha) {
     const nome = email.split('@')[0];
     currentUser = { id: 1, nome, email };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     updateUserInterface();
     hideLoginModal();
-    showNotification(`Bem-vindo, ${nome}!`);
+    alert(`Bem-vindo, ${nome}!`);
     const plano = localStorage.getItem('userPlan');
     if (plano) currentUserPlan = JSON.parse(plano);
     return true;
@@ -368,41 +349,22 @@ function hideUserDropdown() { document.getElementById('user-dropdown')?.classLis
 
 // ========== EVENTOS GLOBAIS ==========
 function setupEventListeners() {
-    // Carrinho
-    if (cartIcon) {
-        cartIcon.addEventListener('click', toggleCart);
-        cartIcon.addEventListener('touchend', toggleCart);
-    }
+    if (cartIcon) cartIcon.addEventListener('click', toggleCart);
     document.querySelector('.close-cart')?.addEventListener('click', toggleCart);
-    document.querySelector('.close-cart')?.addEventListener('touchend', toggleCart);
     document.getElementById('checkout-btn')?.addEventListener('click', finalizarCompra);
-    document.getElementById('checkout-btn')?.addEventListener('touchend', finalizarCompra);
-
-    // Menu usuário
     document.getElementById('user-icon')?.addEventListener('click', toggleUserDropdown);
-    document.getElementById('user-icon')?.addEventListener('touchend', toggleUserDropdown);
     document.getElementById('login-btn')?.addEventListener('click', showLoginModal);
-    document.getElementById('login-btn')?.addEventListener('touchend', showLoginModal);
     document.getElementById('cadastro-btn')?.addEventListener('click', showRegisterModal);
-    document.getElementById('cadastro-btn')?.addEventListener('touchend', showRegisterModal);
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         currentUser = null;
         localStorage.removeItem('currentUser');
         updateUserInterface();
-        showNotification('Logout');
-    });
-    document.getElementById('logout-btn')?.addEventListener('touchend', () => {
-        currentUser = null;
-        localStorage.removeItem('currentUser');
-        updateUserInterface();
-        showNotification('Logout');
+        alert('Logout');
     });
     document.getElementById('my-plan-btn')?.addEventListener('click', () => {
         if (currentUserPlan) alert(`Plano ${currentUserPlan.plano} - R$ ${currentUserPlan.preco}/mês`);
-        else alert('Nenhum plano ativo. Acesse CONVÊNIO.');
+        else alert('Nenhum plano ativo.');
     });
-
-    // Fechar modais
     document.querySelectorAll('.modal .close').forEach(btn => {
         btn.addEventListener('click', () => {
             if (loginModal) loginModal.style.display = 'none';
@@ -410,8 +372,6 @@ function setupEventListeners() {
             document.getElementById('checkout-modal')?.style.display = 'none';
         });
     });
-
-    // Formulários
     document.getElementById('login-form')?.addEventListener('submit', e => {
         e.preventDefault();
         fazerLogin(document.getElementById('login-email').value, document.getElementById('login-password').value);
@@ -425,8 +385,6 @@ function setupEventListeners() {
         hideLoginModal();
         showRegisterModal();
     });
-
-    // Fechar modais clique fora
     window.addEventListener('click', e => {
         if (loginModal && e.target === loginModal) hideLoginModal();
         if (registerModal && e.target === registerModal) hideRegisterModal();
@@ -434,7 +392,6 @@ function setupEventListeners() {
         if (e.target === document.getElementById('checkout-modal')) closeCheckout();
         if (!e.target.closest('.user-menu')) hideUserDropdown();
     });
-
     atribuirEventosProdutos();
     setupCEPAutoComplete();
 }
@@ -462,13 +419,4 @@ function setupCEPAutoComplete() {
     });
 }
 
-function showNotification(msg) {
-    const n = document.createElement('div');
-    n.textContent = msg;
-    n.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#28a745; color:white; padding:12px 20px; border-radius:8px; z-index:10000; animation:slideIn 0.3s ease;';
-    document.body.appendChild(n);
-    setTimeout(() => n.remove(), 3500);
-}
-document.head.insertAdjacentHTML('beforeend', `<style>@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}</style>`);
-
-console.log('✅ UNIPETS mobile ready');
+console.log('✅ UNIPETS mobile 100%');
