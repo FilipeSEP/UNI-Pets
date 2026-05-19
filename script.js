@@ -1,4 +1,4 @@
-// ========== UNIPETS - VERSÃO ESTÁVEL COMPATÍVEL COM PC + MOBILE ==========
+// ========== UNIPETS - VERSÃO FINAL REVISADA (PC + MOBILE) ==========
 console.log('🚀 UNIPETS iniciando...');
 
 // Estado Global
@@ -26,15 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== MODAIS ==========
 function criarModais() {
-    if (!document.getElementById('cart-modal')) {
-        cartModal = document.createElement('div');
-        cartModal.id = 'cart-modal';
-        cartModal.className = 'modal cart-modal';
-        cartModal.innerHTML = '<div class="modal-content"><span class="close-cart">&times;</span><h2>Seu Carrinho</h2><div id="cart-items"></div><div class="cart-total"><strong>Total:</strong> R$ <span id="cart-total">0,00</span></div><button id="checkout-btn" class="btn-primary">Finalizar Compra</button></div>';
-        document.body.appendChild(cartModal);
-    } else {
-        cartModal = document.getElementById('cart-modal');
-    }
+    // Vincula os modais existentes no HTML fornecido
+    cartModal = document.getElementById('cart-modal');
     loginModal = document.getElementById('login-modal');
     registerModal = document.getElementById('register-modal');
 }
@@ -95,7 +88,6 @@ function configurarBusca() {
 
 // ========== PLANOS ==========
 window.assinarPlano = function(plano) {
-    console.log('Assinando plano:', plano);
     if (!currentUser) {
         alert('Faça login para assinar um plano!');
         if (loginModal) loginModal.style.display = 'block';
@@ -119,11 +111,12 @@ window.assinarPlano = function(plano) {
         alert('✅ Plano ' + plano.toUpperCase() + ' ativado!');
         atualizarInterfaceUsuario();
         
-        // Recalcula preços do carrinho atual com o novo desconto do plano
+        // Aplica o desconto nos itens que já estão no carrinho
         cart.forEach(item => {
             item.price = calcularPrecoComDesconto(item.priceOriginal);
         });
         salvarCarrinho();
+        atualizarModalCarrinho();
     }
 };
 
@@ -147,7 +140,7 @@ function adicionarAoCarrinho(id, nome, preco) {
     salvarCarrinho();
     atualizarCarrinhoContador();
     atualizarModalCarrinho();
-    alert(nome + ' adicionado!');
+    alert(nome + ' adicionado ao carrinho!');
 }
 
 function removerDoCarrinho(id) {
@@ -157,7 +150,6 @@ function removerDoCarrinho(id) {
     atualizarModalCarrinho();
 }
 
-// Globalizado para escuta nativa dos botões do modal
 window.alterarQuantidade = function(id, delta) {
     const item = cart.find(i => i.id === id);
     if (item) {
@@ -189,7 +181,7 @@ function atualizarModalCarrinho() {
     const totalSpan = document.getElementById('cart-total');
     if (!div) return;
     if (cart.length === 0) {
-        div.innerHTML = '<p style="text-align:center;">Carrinho vazio</p>';
+        div.innerHTML = '<p style="text-align:center; padding: 20px;">Seu carrinho está vazio</p>';
         if (totalSpan) totalSpan.textContent = '0,00';
         return;
     }
@@ -199,7 +191,7 @@ function atualizarModalCarrinho() {
         const item = cart[i];
         const sub = item.price * item.quantity;
         total = total + sub;
-        html = html + '<div class="cart-item"><div class="cart-item-info"><h4>' + item.name + '</h4><p>R$ ' + item.price.toFixed(2) + '</p></div><div class="cart-item-actions"><button class="quantity-btn" onclick="window.alterarQuantidade(\'' + item.id + '\', -1)">-</button><span>' + item.quantity + '</span><button class="quantity-btn" onclick="window.alterarQuantidade(\'' + item.id + '\', 1)">+</button><button onclick="window.removerDoCarrinho(\'' + item.id + '\')" style="background:none; border:none; color:red; padding: 5px;">🗑️</button></div></div>';
+        html = html + '<div class="cart-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:10px;"><div class="cart-item-info"><h4>' + item.name + '</h4><p>R$ ' + item.price.toFixed(2) + '</p></div><div class="cart-item-actions" style="display:flex; align-items:center; gap:5px;"><button class="quantity-btn" onclick="window.alterarQuantidade(\'' + item.id + '\', -1)">-</button><span style="min-width:20px; text-align:center;">' + item.quantity + '</span><button class="quantity-btn" onclick="window.alterarQuantidade(\'' + item.id + '\', 1)">+</button><button onclick="window.removerDoCarrinho(\'' + item.id + '\')" style="background:none; border:none; color:red; cursor:pointer; font-size:16px; padding:5px;">🗑️</button></div></div>';
     }
     div.innerHTML = html;
     if (totalSpan) totalSpan.textContent = total.toFixed(2);
@@ -219,14 +211,14 @@ function salvarCarrinho() {
     localStorage.setItem('cart', JSON.stringify(cart));
 }
 
-// ========== CHECKOUT ==========
+// ========== CHECKOUT INTERFACE & PASSOS ==========
 function finalizarCompra() {
     if (cart.length === 0) {
-        alert('Carrinho vazio');
+        alert('Seu carrinho está vazio!');
         return;
     }
     if (!currentUser) {
-        alert('Faça login para finalizar');
+        alert('Por favor, faça login para finalizar a sua compra.');
         abrirFecharCarrinho();
         if (loginModal) loginModal.style.display = 'block';
         return;
@@ -242,11 +234,11 @@ function finalizarCompra() {
 function resetarCheckout() {
     checkoutData = { address: null, shipping: null, payment: null };
     selectedShipping = null;
-    irParaStep(1);
+    window.irParaStep(1);
     atualizarResumo();
 }
 
-function irParaStep(step) {
+window.irParaStep = function(step) {
     const steps = document.querySelectorAll('.checkout-step');
     for (let i = 0; i < steps.length; i++) {
         steps[i].style.display = 'none';
@@ -259,12 +251,12 @@ function irParaStep(step) {
     const indicador = document.querySelector('[data-step="' + step + '"]');
     if (el) el.style.display = 'block';
     if (indicador) indicador.classList.add('active');
-}
+};
 
-function proximoStep(next) {
+window.nextStep = function(next) {
     if (next === 2) {
         if (!validarEndereco()) {
-            alert('Preencha todos os campos obrigatórios do endereço.');
+            alert('Por favor, preencha todos os campos obrigatórios do endereço.');
             return;
         }
         salvarEndereco();
@@ -272,18 +264,18 @@ function proximoStep(next) {
     }
     if (next === 3) {
         if (!selectedShipping) {
-            alert('Selecione uma opção de frete.');
+            alert('Escolha uma opção de frete antes de continuar.');
             return;
         }
         checkoutData.shipping = selectedShipping;
         atualizarResumo();
     }
-    irParaStep(next);
-}
+    window.irParaStep(next);
+};
 
-function stepAnterior(prev) {
-    irParaStep(prev);
-}
+window.prevStep = function(prev) {
+    window.irParaStep(prev);
+};
 
 function validarEndereco() {
     const campos = ['cep', 'logradouro', 'numero', 'bairro', 'cidade', 'estado'];
@@ -325,20 +317,18 @@ function calcularFrete() {
     for (let i = 0; i < opcoes.length; i++) {
         const opt = opcoes[i];
         let precoTexto = opt.preco === 0 ? 'GRÁTIS' : 'R$ ' + opt.preco.toFixed(2);
-        let selectedClass = (i === 1 && opcoes[0].preco !== 0) ? 'selected' : '';
-        if (opt.preco === 0) selectedClass = 'selected';
+        let selectedClass = (i === 0) ? 'selected' : '';
         
-        html = html + '<div class="shipping-option ' + selectedClass + '" onclick="window.selecionarFrete(' + i + ')"><input type="radio" name="shipping" ' + (selectedClass ? 'checked' : '') + '><div class="shipping-info"><div><strong>' + opt.nome + '</strong><div class="shipping-time">' + opt.dias + ' dias úteis</div></div><div class="shipping-price">' + precoTexto + '</div></div></div>';
+        html = html + '<div class="shipping-option ' + selectedClass + '" onclick="window.selecionarFrete(' + i + ')" style="display:flex; align-items:center; gap:10px; border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:5px; cursor:pointer;"><input type="radio" name="shipping" ' + (selectedClass ? 'checked' : '') + '><div class="shipping-info" style="display:flex; justify-content:space-between; width:100%;"><div><strong>' + opt.nome + '</strong><div class="shipping-time" style="font-size:12px; color:#666;">' + opt.dias + ' dias úteis</div></div><div class="shipping-price">' + precoTexto + '</div></div></div>';
     }
     div.innerHTML = html;
-    selectedShipping = opcoes[0].preco === 0 ? opcoes[0] : opcoes[1];
+    selectedShipping = opcoes[0];
 }
 
 window.selecionarFrete = function(idx) {
     const opcoes = [];
     const optionsDivs = document.querySelectorAll('.shipping-option');
-    for (let i = 0; i < optionsDivs.length; i++) {
-        const opt = optionsDivs[i];
+    optionsDivs.forEach(opt => {
         const nome = opt.querySelector('strong')?.innerText || '';
         const precoTxt = opt.querySelector('.shipping-price')?.innerText || 'R$ 0';
         let preco = 0;
@@ -347,15 +337,16 @@ window.selecionarFrete = function(idx) {
         }
         const dias = opt.innerText.match(/\d+/)?.[0] || '5';
         opcoes.push({ nome: nome, preco: preco, dias: dias });
-    }
+    });
+
     selectedShipping = opcoes[idx];
     for (let i = 0; i < optionsDivs.length; i++) {
         if (i === idx) {
-            optionsDivs[i].classList.add('selected');
+            optionsDivs[i].style.borderColor = '#111'; // Destaca visualmente a borda selecionada
             const radio = optionsDivs[i].querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
         } else {
-            optionsDivs[i].classList.remove('selected');
+            optionsDivs[i].style.borderColor = '#ccc';
         }
     }
     atualizarResumo();
@@ -377,7 +368,7 @@ function atualizarResumo() {
     if (totalEl) totalEl.innerHTML = 'R$ ' + (subtotal + frete).toFixed(2);
 }
 
-function finalizarPedido() {
+window.finalizeOrder = function() {
     const metodo = document.querySelector('input[name="payment"]:checked');
     if (!metodo) {
         alert('Escolha o método de pagamento.');
@@ -390,28 +381,26 @@ function finalizarPedido() {
     }
     total = total + (selectedShipping ? selectedShipping.preco : 0);
     
-    // Atualizado para o método universal .substring() aceito no Mobile Safari/iOS
+    // Substituído para o padrão universal .substring() aceito em dispositivos móveis modernos (iOS e Android)
     const num = '#' + Math.random().toString(36).substring(2, 10).toUpperCase();
     
     document.getElementById('order-number').innerHTML = num;
     document.getElementById('delivery-estimate').innerHTML = (selectedShipping ? selectedShipping.dias : 5) + ' dias úteis';
     document.getElementById('order-total').innerHTML = 'R$ ' + total.toFixed(2);
-    irParaStep(4);
+    
+    window.irParaStep(4);
     cart = [];
     salvarCarrinho();
     atualizarCarrinhoContador();
-    alert('Pedido finalizado com sucesso!');
-}
+    alert('Pedido finalizado com sucesso! Obrigado.');
+};
 
-window.finalizeOrder = finalizarPedido;
-window.nextStep = proximoStep;
-window.prevStep = stepAnterior;
 window.closeCheckout = function() {
     const modal = document.getElementById('checkout-modal');
     if (modal) modal.style.display = 'none';
 };
 
-// ========== LOGIN & SISTEMA DE USUÁRIO ==========
+// ========== LOGIN & CONTROLE DE SESSÃO ==========
 function fazerLogin(email, senha) {
     const nome = email.split('@')[0];
     currentUser = { id: 1, nome: nome, email: email };
@@ -492,13 +481,13 @@ function fecharDropdown() {
     if (dropdown) dropdown.classList.remove('show');
 }
 
-// ========== CONFIGURAÇÃO DE EVENTOS GLOBAIS ==========
+// ========== MAPEAMENTO DE EVENTOS GLOBAIS ==========
 function configurarEventos() {
-    // Interceptação via delegação de eventos para clicks sem falha no Touch Mobile
+    // Escuta delegada estruturada: cliques ultra-velozes no mobile (Touch e Click)
     document.addEventListener('click', function(e) {
         const target = e.target;
         
-        // Botão Adicionar ao Carrinho (.add-to-cart)
+        // Disparador do botão clássico "Adicionar ao Carrinho"
         if (target.classList.contains('add-to-cart') || target.closest('.add-to-cart')) {
             const btn = target.classList.contains('add-to-cart') ? target : target.closest('.add-to-cart');
             adicionarAoCarrinho(
@@ -511,8 +500,15 @@ function configurarEventos() {
 
     if (cartIcon) cartIcon.addEventListener('click', abrirFecharCarrinho);
     
-    const closeCart = document.querySelector('.close-cart');
-    if (closeCart) closeCart.addEventListener('click', abrirFecharCarrinho);
+    // Mapeia tanto ".close-cart" quanto ".close" presentes nos seus modais HTML
+    document.querySelectorAll('.close, .close-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (cartModal) cartModal.style.display = 'none';
+            fecharLogin();
+            fecharCadastro();
+            window.closeCheckout();
+        });
+    });
     
     const checkoutBtn = document.getElementById('checkout-btn');
     if (checkoutBtn) checkoutBtn.addEventListener('click', finalizarCompra);
@@ -534,7 +530,7 @@ function configurarEventos() {
             localStorage.removeItem('currentUser');
             localStorage.removeItem('userPlan');
             atualizarInterfaceUsuario();
-            alert('Logout efetuado.');
+            alert('Sessão encerrada.');
         });
     }
     
@@ -546,16 +542,6 @@ function configurarEventos() {
             } else {
                 alert('Nenhum plano ativo. Acesse CONVÊNIO.');
             }
-        });
-    }
-    
-    const closeBtns = document.querySelectorAll('.modal .close');
-    for (let i = 0; i < closeBtns.length; i++) {
-        closeBtns[i].addEventListener('click', function() {
-            fecharLogin();
-            fecharCadastro();
-            const checkout = document.getElementById('checkout-modal');
-            if (checkout) checkout.style.display = 'none';
         });
     }
     
@@ -589,11 +575,10 @@ function configurarEventos() {
         });
     }
     
-    // Fechar modais ao clicar fora
     window.addEventListener('click', function(e) {
         if (loginModal && e.target === loginModal) fecharLogin();
         if (registerModal && e.target === registerModal) fecharCadastro();
-        if (cartModal && e.target === cartModal) abrirFecharCarrinho();
+        if (cartModal && e.target === cartModal) cartModal.style.display = 'none';
         const checkoutModal = document.getElementById('checkout-modal');
         if (checkoutModal && e.target === checkoutModal) checkoutModal.style.display = 'none';
         if (!e.target.closest('.user-menu')) fecharDropdown();
@@ -602,7 +587,7 @@ function configurarEventos() {
     configurarCEP();
 }
 
-// ========== CONFIGURAÇÃO E EVENTO DE CEP (OTIMIZADO MOBILE) ==========
+// ========== CONSUMO DA API VIACEP (AMIGÁVEL MOBILE) ==========
 function configurarCEP() {
     const cep = document.getElementById('cep');
     if (!cep) return;
@@ -618,15 +603,16 @@ function configurarCEP() {
                     const bairro = document.getElementById('bairro');
                     const cidade = document.getElementById('cidade');
                     const estado = document.getElementById('estado');
+                    
                     if (logradouro) logradouro.value = data.logradouro || '';
                     if (bairro) bairro.value = data.bairro || '';
                     if (cidade) cidade.value = data.localidade || '';
-                    if (estado) estado.value = data.uf || '';
-                } else {
-                    console.log('CEP não encontrado.');
+                    if (estado) {
+                        estado.value = data.uf || '';
+                    }
                 }
             } catch (err) {
-                console.log('Erro na requisição do ViaCEP:', err);
+                console.log('Erro na conexão com ViaCEP:', err);
             }
         }
     }
@@ -638,7 +624,7 @@ function configurarCEP() {
         }
         e.target.value = v;
 
-        // Mobile Friendly: Ao terminar de digitar os 8 números corretos (9 caracteres com o traço), executa direto.
+        // Executa a busca assim que os 8 números forem digitados no teclado mobile, sem precisar clicar fora
         if (v.length === 9) {
             buscarCEP(v);
         }

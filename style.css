@@ -1050,15 +1050,18 @@ section {
     color: #ff6b6b;
 }
 
-.review-container {
+/* Ajustado para bater com o <div class="review-container"> do seu HTML */
+.review .review-container {
     display: grid;
+    /* auto-fit garante que no PC fique lado a lado e no celular empilhe perfeitamente */
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 3rem;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-.review-box {
+/* Ajustado para bater com o <article class="review-box"> do seu HTML */
+.review .review-box {
     background: white;
     border-radius: 10px;
     padding: 3rem;
@@ -1067,16 +1070,17 @@ section {
     transition: transform 0.3s;
 }
 
-.review-box:hover {
+.review .review-box:hover {
     transform: translateY(-5px);
 }
 
-.review-box img[alt=""] {
+/* Aspas */
+.review .review-box img[aria-hidden="true"] {
     width: 50px;
     margin-bottom: 2rem;
 }
 
-.review-box blockquote p {
+.review .review-box blockquote p {
     font-size: 1.6rem;
     color: #666;
     margin-bottom: 2rem;
@@ -1084,35 +1088,65 @@ section {
     line-height: 1.5;
 }
 
-.review-box .user {
+/* Foto do Usuário */
+.review .user {
     width: 80px;
     height: 80px;
     border-radius: 50%;
     margin-bottom: 1rem;
     object-fit: cover;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
-.review-box h3 {
+.review .review-box h3 {
     font-size: 1.8rem;
     margin-bottom: 0.5rem;
     color: #333;
 }
 
-.review-box span {
+.review .review-box span {
     font-size: 1.4rem;
     color: #888;
     margin-bottom: 1rem;
     display: block;
 }
 
-.review-box .stars {
+/* Container das Estrelas de Avaliação */
+.review .stars {
     display: flex;
     justify-content: center;
-    gap: 0.3rem;
+    gap: 5px;
     margin-top: 1rem;
 }
 
-.review-box .stars img {
-    width: 20px !important;
-    height: 20px !important;
+.review .stars img {
+    width: 20px;
+    height: 20px;
+}
+
+/* ========== AJUSTE RESPONSIVO (MOBILE FIRST) ========== */
+@media (max-width: 480px) {
+    .review {
+        padding: 3rem 3%;
+    }
+    
+    .review .title {
+        font-size: 2.2rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .review .review-container {
+        grid-template-columns: 1fr; /* Força uma única coluna em celulares muito pequenos */
+        gap: 2rem;
+    }
+    
+    .review .review-box {
+        padding: 2rem; /* Reduz um pouco o espaçamento interno no celular para sobrar espaço pro texto */
+    }
+
+    .review .review-box blockquote p {
+        font-size: 1.4rem;
+    }
 }
