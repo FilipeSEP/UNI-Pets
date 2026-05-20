@@ -1,5 +1,5 @@
 // ====================================================================
-// UNIPETS - SISTEMA COMPLETO
+// UNIPETS - SISTEMA COMPLETO E ESTÁVEL
 // ====================================================================
 
 // ========== 1. ESTADO GLOBAL ==========
@@ -28,14 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== 4. MODAIS ==========
 function criarModais() {
-    if (!document.getElementById('cart-modal')) {
+    cartModal = document.getElementById('cart-modal');
+    if (!cartModal) {
         cartModal = document.createElement('div');
         cartModal.id = 'cart-modal';
         cartModal.className = 'modal cart-modal';
         cartModal.innerHTML = `<div class="modal-content"><span class="close-cart">&times;</span><h2>Seu Carrinho</h2><div id="cart-items"></div><div class="cart-total"><strong>Total:</strong> R$ <span id="cart-total">0,00</span></div><button id="checkout-btn" class="btn-primary">Finalizar Compra</button></div>`;
         document.body.appendChild(cartModal);
-    } else {
-        cartModal = document.getElementById('cart-modal');
     }
     loginModal = document.getElementById('login-modal');
     registerModal = document.getElementById('register-modal');
@@ -94,7 +93,12 @@ function configurarBusca() {
 // ========== 7. SISTEMA DE CARRINHO ==========
 function adicionarAoCarrinho(id, nome, preco) {
     const existente = cart.find(item => item.id === id);
-    const precoFinal = currentUserPlan ? calcularPrecoComDesconto(preco) : preco;
+    let precoFinal = preco;
+    if (currentUserPlan) {
+        if (currentUserPlan.plano === 'patinhas') precoFinal = preco * 0.9;
+        else if (currentUserPlan.plano === 'amigo-pet') precoFinal = preco * 0.8;
+        else if (currentUserPlan.plano === 'vida-animal') precoFinal = preco * 0.7;
+    }
     if (existente) {
         existente.quantity++;
     } else {
@@ -155,14 +159,6 @@ function abrirFecharCarrinho() {
 
 function salvarCarrinho() { localStorage.setItem('cart', JSON.stringify(cart)); }
 
-function calcularPrecoComDesconto(preco) {
-    if (!currentUserPlan) return preco;
-    if (currentUserPlan.plano === 'patinhas') return preco * 0.9;
-    if (currentUserPlan.plano === 'amigo-pet') return preco * 0.8;
-    if (currentUserPlan.plano === 'vida-animal') return preco * 0.7;
-    return preco;
-}
-
 function configurarBotoesProdutos() {
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.removeEventListener('click', handlerProduto);
@@ -203,9 +199,11 @@ function setupPix() {
     const radios = document.querySelectorAll('input[name="payment"]');
     radios.forEach(radio => {
         radio.addEventListener('change', function() {
-            console.log('Método selecionado:', this.value);
-            if (this.value === 'pix') pixContent.style.display = 'block';
-            else pixContent.style.display = 'none';
+            if (this.value === 'pix') {
+                pixContent.style.display = 'block';
+            } else {
+                pixContent.style.display = 'none';
+            }
         });
     });
     console.log('✅ setupPix configurado');
