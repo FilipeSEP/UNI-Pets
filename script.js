@@ -663,13 +663,45 @@ function finalizarPedido() {
 }
 
 // Exporta funções para uso global (chamadas pelo HTML onclick)
-window.finalizeOrder = finalizarPedido;
-window.nextStep = proximoStep;
-window.prevStep = stepAnterior;
-window.closeCheckout = function() {
-    const modal = document.getElementById('checkout-modal');
-    if (modal) modal.style.display = 'none';
-};
+function finalizeOrder() {
+    const metodo = document.querySelector('input[name="payment"]:checked');
+    if (!metodo) {
+        alert('Por favor, selecione um método de pagamento.');
+        return;
+    }
+    
+    checkoutData.payment = metodo.value;
+    
+    // Calcula total final
+    let total = 0;
+    for (let i = 0; i < cart.length; i++) {
+        total = total + (cart[i].price * cart[i].quantity);
+    }
+    total = total + (selectedShipping ? selectedShipping.preco : 0);
+    
+    // Se for PIX, atualiza QR Code com o valor correto
+    if (metodo.value === 'pix') {
+        atualizarPixComValor(total);
+    }
+    
+    // Gera número de pedido aleatório
+    const numPedido = '#' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    
+    // Atualiza tela de confirmação
+    document.getElementById('order-number').innerHTML = numPedido;
+    document.getElementById('delivery-estimate').innerHTML = (selectedShipping ? selectedShipping.dias : 5) + ' dias úteis';
+    document.getElementById('order-total').innerHTML = 'R$ ' + total.toFixed(2);
+    
+    // Vai para etapa 4 (confirmação)
+    irParaStep(4);
+    
+    // Limpa o carrinho
+    cart = [];
+    salvarCarrinho();
+    atualizarCarrinhoContador();
+    
+    alert('Pedido finalizado com sucesso!');
+}
 
 // ====================================================================
 // 11. SISTEMA DE LOGIN E CADASTRO DE USUÁRIO
@@ -925,6 +957,62 @@ function configurarCEP() {
         }
     });
 }
+// ====================================================================
+// PAGAMENTO PIX
+// ====================================================================
+
+// Configura o comportamento de exibição do conteúdo PIX
+function setupPix() {
+    const radioPix = document.querySelector('input[name="payment"][value="pix"]');
+    const pixContent = document.getElementById('pix-content');
+    
+    if (!radioPix || !pixContent) return;
+    
+    const radios = document.querySelectorAll('input[name="payment"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'pix') {
+                pixContent.style.display = 'block';
+            } else {
+                pixContent.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Função para copiar o código PIX
+window.copiarCodigoPix = function() {
+    const codigo = document.getElementById('pix-codigo');
+    if (!codigo) return;
+    
+    const textarea = document.createElement('textarea');
+    textarea.value = codigo.innerText;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    
+    const btn = event.target;
+    const textoOriginal = btn.innerText;
+    btn.innerText = '✅ Copiado!';
+    setTimeout(() => {
+        btn.innerText = textoOriginal;
+    }, 2000);
+    
+    alert('Código PIX copiado para a área de transferência!');
+};
+
+// Atualiza o QR Code e o código PIX com o valor correto do pedido
+function atualizarPixComValor(total) {
+    const pixData = `00020126360014br.gov.bcb.pix0114contato@unipets.com.br52040000530398654${total.toFixed(2).replace('.', '')}5802BR5925UNIPETS PET SHOP6009SAO PAULO62070503***6304E2A3`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixData)}`;
+    const qrImg = document.getElementById('pix-qr');
+    if (qrImg) qrImg.src = qrUrl;
+    
+    const codigoElement = document.getElementById('pix-codigo');
+    if (codigoElement) codigoElement.innerText = pixData;
+}
+
 
 // ====================================================================
 // 14. INICIALIZAÇÃO CONCLUÍDA
