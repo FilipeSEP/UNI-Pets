@@ -450,6 +450,7 @@
         </section>
     </main>
 
+    <!-- RODAPÉ -->
     <footer class="footer" id="contact" role="contentinfo">
         <div class="footer-content">
             <div class="contact-info">
@@ -627,6 +628,7 @@
                 </div>
             </div>
 
+            <!-- MÉTODOS DE PAGAMENTO -->
             <div class="checkout-step" id="step-3" style="display: none;">
                 <h3>Método de Pagamento</h3>
                 <div class="payment-methods">
@@ -680,6 +682,24 @@
                         <input type="radio" name="payment" value="pix">
                         <span>PIX</span>
                     </label>
+
+                    <!-- CONTEÚDO PIX (aparece quando PIX é selecionado) -->
+                    <div id="pix-content" style="display: none; margin-top: 20px;">
+                        <div class="pix-container">
+                            <div class="pix-qrcode">
+                                <img id="pix-qr"
+                                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=00020126360014br.gov.bcb.pix0114contato@unipets.com.br5204000053039865405150.005802BR5925UNIPETS PET SHOP6009SAO PAULO62070503***6304E2A3"
+                                    alt="QR Code PIX">
+                            </div>
+                            <p><strong>📱 Escaneie o QR Code</strong></p>
+                            <div class="pix-codigo" id="pix-codigo">
+                                00020126360014br.gov.bcb.pix0114contato@unipets.com.br5204000053039865405150.005802BR5925UNIPETS
+                                PET SHOP6009SAO PAULO62070503***6304E2A3
+                            </div>
+                            <button class="btn-copiar-pix" onclick="copiarCodigoPix()">📋 Copiar código PIX</button>
+                            <p class="pix-aviso">⚠️ Após o pagamento, seu pedido será processado em até 24h</p>
+                        </div>
+                    </div>
                     <label class="payment-option">
                         <input type="radio" name="payment" value="boleto">
                         <span>Boleto Bancário</span>
