@@ -1150,3 +1150,70 @@ section {
         font-size: 1.4rem;
     }
 }
+
+/* ========== CATEGORIA SERVIÇOS ========== */
+.box[data-categoria="servicos"] {
+    border-left: 4px solid #28a745;
+}
+
+.box[data-categoria="servicos"] {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.box[data-categoria="servicos"] img {
+    max-height: 180px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.box[data-categoria="servicos"] h3 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.box[data-categoria="servicos"] .price {
+    font-size: 2rem;
+    color: #28a745;
+    margin-bottom: 1.5rem;
+}
+
+.box[data-categoria="servicos"] .servico-botoes {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.btn-saiba-mais {
+    background: transparent;
+    border: 2px solid #007bff;
+    color: #007bff;
+    padding: 0.8rem 1.2rem;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    flex: 1;
+}
+
+.btn-saiba-mais:hover {
+    background: #007bff;
+    color: white;
+}
+
+.box[data-categoria="servicos"] .add-to-cart {
+    background: #ff6b6b;
+    margin-top: 0;
+    flex: 1;
+    border-radius: 30px;
+}
+
+.box[data-categoria="servicos"] .add-to-cart:hover {
+    background: #ff6b6b;
+}

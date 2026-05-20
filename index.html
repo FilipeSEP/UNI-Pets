@@ -108,6 +108,7 @@
                 <button class="cat-btn" data-cat="camas">🛏️ Camas</button>
                 <button class="cat-btn" data-cat="higiene">🧼 Higiene</button>
                 <button class="cat-btn" data-cat="acessorios">🎀 Acessórios</button>
+                <button class="cat-btn" data-cat="servicos">💉 Serviços</button>
             </div>
 
             <div class="box-container" id="produtos-container">
@@ -128,8 +129,8 @@
                         alt="Ração para Cães Filhotes - 10kg">
                     <h3>Ração para Cães Filhotes - 10kg</h3>
                     <div class="price">R$ 109,99</div>
-                    <button class="btn add-to-cart" data-product-id="2"
-                        data-product="Ração para Cães Filhotes - 10kg" data-price="109.99">
+                    <button class="btn add-to-cart" data-product-id="2" data-product="Ração para Cães Filhotes - 10kg"
+                        data-price="109.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
@@ -150,8 +151,8 @@
                         alt="Ração para Gatos Filhotes - 10kg">
                     <h3>Ração para Gatos Filhotes - 10kg</h3>
                     <div class="price">R$ 119,99</div>
-                    <button class="btn add-to-cart" data-product-id="4"
-                        data-product="Ração para Gatos Filhotes - 10kg" data-price="119.99">
+                    <button class="btn add-to-cart" data-product-id="4" data-product="Ração para Gatos Filhotes - 10kg"
+                        data-price="119.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
@@ -172,8 +173,8 @@
                         alt="Petisco de Frango para cães">
                     <h3>Petisco de Frango para cães</h3>
                     <div class="price">R$ 49,99</div>
-                    <button class="btn add-to-cart" data-product-id="26"
-                        data-product="Petisco de Frango para cães" data-price="49.99">
+                    <button class="btn add-to-cart" data-product-id="26" data-product="Petisco de Frango para cães"
+                        data-price="49.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
@@ -181,8 +182,7 @@
                 <!-- BRINQUEDOS -->
                 <article class="box" data-categoria="brinquedos">
                     <img width="250" src="https://filipesep.github.io/UNI-Pets/img/mordedor.png"
-                        alt="Mordedor em forma de osso aromatizado de bacon"
-                        onerror="this.style.display='none'">
+                        alt="Mordedor em forma de osso aromatizado de bacon" onerror="this.style.display='none'">
                     <h3>Mordedor Aromatizado de Bacon - Tamanho M</h3>
                     <div class="price">R$ 29,90</div>
                     <button class="btn add-to-cart" data-product-id="11"
@@ -229,8 +229,8 @@
                         alt="Cama Nuvem Brigadeiro">
                     <h3>Cama Nuvem Brigadeiro - TAM M</h3>
                     <div class="price">R$ 129,99</div>
-                    <button class="btn add-to-cart" data-product-id="6"
-                        data-product="Cama Nuvem Brigadeiro - TAM M" data-price="129.99">
+                    <button class="btn add-to-cart" data-product-id="6" data-product="Cama Nuvem Brigadeiro - TAM M"
+                        data-price="129.99">
                         Adicionar ao Carrinho
                     </button>
                 </article>
@@ -248,8 +248,8 @@
                 </article>
 
                 <article class="box" data-categoria="higiene">
-                    <img width="250" src="https://filipesep.github.io/UNI-Pets/img/shampoo.png"
-                        alt="Shampoo para Cães" onerror="this.style.display='none'">
+                    <img width="250" src="https://filipesep.github.io/UNI-Pets/img/shampoo.png" alt="Shampoo para Cães"
+                        onerror="this.style.display='none'">
                     <h3>Shampoo para Cães - Coco e Amendoas</h3>
                     <div class="price">R$ 20,99</div>
                     <button class="btn add-to-cart" data-product-id="9"
@@ -260,14 +260,77 @@
 
                 <!-- ACESSÓRIOS -->
                 <article class="box" data-categoria="acessorios">
-                    <img width="250" src="https://filipesep.github.io/UNI-Pets/img/roupinha.png"
-                        alt="Roupinha de Frio" onerror="this.style.display='none'">
+                    <img width="250" src="https://filipesep.github.io/UNI-Pets/img/roupinha.png" alt="Roupinha de Frio"
+                        onerror="this.style.display='none'">
                     <h3>Casaco de Moletom para Cães e Gatos - Preto</h3>
                     <div class="price">R$ 89,90</div>
                     <button class="btn add-to-cart" data-product-id="24"
                         data-product="Casaco de Moletom para Cães e Gatos - Preto" data-price="89.90">
                         Adicionar ao Carrinho
                     </button>
+                </article>
+
+                <!-- SERVIÇOS -->
+                <article class="box" data-categoria="servicos">
+                    <img width="250" src="https://filipesep.github.io/UNI-Pets/img/banho.png" alt="Serviço de Banho"
+                        onerror="this.src='https://via.placeholder.com/250x180/28a745/white?text=Banho'">
+                    <h3>Serviço de Banho</h3>
+                    <div class="price">R$ 50,00</div>
+                    <div class="servico-botoes">
+                        <button class="btn-saiba-mais" onclick="abrirModalSaibaMais('banho')">🔍 Saiba como
+                            funciona</button>
+                        <button class="btn add-to-cart" data-product-id="27" data-product="Serviço de Banho"
+                            data-price="50.00">
+                            🛒 Comprar
+                        </button>
+                    </div>
+                </article>
+
+                <article class="box" data-categoria="servicos">
+                    <img width="250" src="https://filipesep.github.io/UNI-Pets/img/tosa.png" alt="Serviço de Tosa"
+                        onerror="this.src='https://via.placeholder.com/250x180/28a745/white?text=Tosa'">
+                    <h3>Serviço de Tosa</h3>
+                    <div class="price">R$ 40,00</div>
+                    <div class="servico-botoes">
+                        <button class="btn-saiba-mais" onclick="abrirModalSaibaMais('tosa')">🔍 Saiba como
+                            funciona</button>
+                        <button class="btn add-to-cart" data-product-id="28" data-product="Serviço de Tosa"
+                            data-price="40.00">
+                            🛒 Comprar
+                        </button>
+                    </div>
+                </article>
+
+                <article class="box" data-categoria="servicos">
+                    <img width="250" src="https://filipesep.github.io/UNI-Pets/img/ouvidos.png"
+                        alt="Serviço de Limpeza de Ouvidos"
+                        onerror="this.src='https://via.placeholder.com/250x180/28a745/white?text=Limpeza'">
+                    <h3>Serviço de Limpeza de Ouvidos</h3>
+                    <div class="price">R$ 20,00</div>
+                    <div class="servico-botoes">
+                        <button class="btn-saiba-mais" onclick="abrirModalSaibaMais('limpeza')">🔍 Saiba como
+                            funciona</button>
+                        <button class="btn add-to-cart" data-product-id="29"
+                            data-product="Serviço de Limpeza de Ouvidos" data-price="20.00">
+                            🛒 Comprar
+                        </button>
+                    </div>
+                </article>
+
+                <article class="box" data-categoria="servicos">
+                    <img width="250" src="https://filipesep.github.io/UNI-Pets/img/unhas.png"
+                        alt="Serviço de Corte de Unhas"
+                        onerror="this.src='https://via.placeholder.com/250x180/28a745/white?text=Corte+de+Unhas'">
+                    <h3>Serviço de Corte de Unhas</h3>
+                    <div class="price">R$ 15,00</div>
+                    <div class="servico-botoes">
+                        <button class="btn-saiba-mais" onclick="abrirModalSaibaMais('unhas')">🔍 Saiba como
+                            funciona</button>
+                        <button class="btn add-to-cart" data-product-id="30" data-product="Serviço de Corte de Unhas"
+                            data-price="15.00">
+                            🛒 Comprar
+                        </button>
+                    </div>
                 </article>
             </div>
         </section>
@@ -284,23 +347,23 @@
             <div class="plans-container">
                 <div class="plan-card">
                     <div class="plan-icon">🐾</div>
-                    <h3>Plano Básico</h3>
-                    <div class="plan-price">R$ 29,90 <span>/mês</span></div>
+                    <h3>Plano Patinhas</h3>
+                    <div class="plan-price">R$ 39,90 <span>/mês</span></div>
                     <ul class="plan-benefits">
                         <li>✅ 1 banho por mês</li>
                         <li>✅ 10% desconto em produtos</li>
                         <li>✅ Brinde de boas-vindas</li>
                         <li>📞 Consultas com parceiros*</li>
                     </ul>
-                    <button class="btn-plan" onclick="assinarPlano('basico')">Assinar Plano</button>
+                    <button class="btn-plan" onclick="assinarPlano('patinhas')">Assinar Plano</button>
                     <p class="plan-note">*Apenas descontos, não cobrimos consultas</p>
                 </div>
 
                 <div class="plan-card featured">
                     <div class="popular-badge">MAIS POPULAR</div>
                     <div class="plan-icon">🐕</div>
-                    <h3>Plano Premium</h3>
-                    <div class="plan-price">R$ 59,90 <span>/mês</span></div>
+                    <h3>Plano Amigo Pet</h3>
+                    <div class="plan-price">R$ 79,90 <span>/mês</span></div>
                     <ul class="plan-benefits">
                         <li>✅ 2 banhos por mês</li>
                         <li>✅ 20% desconto em produtos</li>
@@ -308,14 +371,14 @@
                         <li>✅ Prioridade no agendamento</li>
                         <li>📞 Consultas com parceiros*</li>
                     </ul>
-                    <button class="btn-plan" onclick="assinarPlano('premium')">Assinar Plano</button>
+                    <button class="btn-plan" onclick="assinarPlano('amigo-pet')">Assinar Plano</button>
                     <p class="plan-note">*Apenas descontos, não cobrimos consultas</p>
                 </div>
 
                 <div class="plan-card">
                     <div class="plan-icon">🐱</div>
-                    <h3>Plano VIP</h3>
-                    <div class="plan-price">R$ 99,90 <span>/mês</span></div>
+                    <h3>Plano Vida Animal</h3>
+                    <div class="plan-price">R$ 149,90 <span>/mês</span></div>
                     <ul class="plan-benefits">
                         <li>✅ Banhos ilimitados</li>
                         <li>✅ 30% desconto em produtos</li>
@@ -324,7 +387,7 @@
                         <li>✅ 1 corte de graça por mês</li>
                         <li>📞 Consultas com parceiros*</li>
                     </ul>
-                    <button class="btn-plan" onclick="assinarPlano('vip')">Assinar Plano</button>
+                    <button class="btn-plan" onclick="assinarPlano('vida-animal')">Assinar Plano</button>
                     <p class="plan-note">*Apenas descontos, não cobrimos consultas</p>
                 </div>
             </div>
@@ -453,6 +516,7 @@
         </div>
     </div>
 
+    <!-- Modal de cadastro -->
     <div id="register-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>

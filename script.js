@@ -636,3 +636,95 @@ function configurarCEP() {
 }
 
 console.log('✅ UNIPETS funcionando e pronto para rodar!');
+
+// ========== MODAL "SAIBA COMO FUNCIONA" PARA SERVIÇOS ==========
+function abrirModalSaibaMais(servico) {
+    let titulo = '';
+    let descricao = '';
+    let beneficios = [];
+    let duracao = '';
+    
+    if (servico === 'banho') {
+        titulo = '🐕 Como funciona o Serviço de Banho?';
+        descricao = 'Banho completo com produtos hipoalergênicos e profissionais qualificados.';
+        beneficios = [
+            '✅ Produtos de alta qualidade',
+            '✅ Secagem adequada para cada raça',
+            '✅ Escovação inclusa',
+            '✅ Perfume personalizado'
+        ];
+        duracao = '⏱️ Duração média: 1 hora';
+    }
+    else if (servico === 'tosa') {
+        titulo = '✂️ Como funciona o Serviço de Tosa?';
+        descricao = 'Tosa profissional respeitando o padrão da raça ou seu gosto.';
+        beneficios = [
+            '✅ Profissional especializado',
+            '✅ Equipamentos de qualidade',
+            '✅ Finalização com perfume',
+            '✅ Higienização após tosa'
+        ];
+        duracao = '⏱️ Duração média: 1h30';
+    }
+    else if (servico === 'limpeza') {
+        titulo = '👂 Como funciona a Limpeza de Ouvidos?';
+        descricao = 'Limpeza profunda e segura com produtos específicos.';
+        beneficios = [
+            '✅ Remoção de cera e sujeira',
+            '✅ Produtos antissépticos',
+            '✅ Prevenção de otites',
+            '✅ Profissional treinado'
+        ];
+        duracao = '⏱️ Duração média: 20 minutos';
+    }
+    else if (servico === 'unhas') {
+        titulo = '✂️ Como funciona o Corte de Unhas?';
+        descricao = 'Corte profissional sem risco para seu pet.';
+        beneficios = [
+            '✅ Corte preciso e seguro',
+            '✅ Lixamento das unhas',
+            '✅ Identificação da veia',
+            '✅ Pet tranquilo e confortável'
+        ];
+        duracao = '⏱️ Duração média: 15 minutos';
+    }
+    
+    // Cria modal se não existir
+    let modal = document.getElementById('modal-saiba-mais');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modal-saiba-mais';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-saiba">&times;</span>
+                <div id="modal-saiba-conteudo"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        modal.querySelector('.close-saiba').onclick = () => {
+            modal.style.display = 'none';
+        };
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+    }
+    
+    // Preenche conteúdo
+    const conteudo = document.getElementById('modal-saiba-conteudo');
+    conteudo.innerHTML = `
+        <h2 style="color: #ff6b6b; margin-bottom: 2rem;">${titulo}</h2>
+        <p style="font-size: 1.6rem; margin-bottom: 2rem;">${descricao}</p>
+        <ul style="list-style: none; margin-bottom: 2rem;">
+            ${beneficios.map(b => `<li style="padding: 0.8rem 0; font-size: 1.4rem;">${b}</li>`).join('')}
+        </ul>
+        <p style="font-size: 1.4rem; color: #666; margin-bottom: 2rem;">${duracao}</p>
+        <p style="font-size: 1.2rem; color: #999; font-style: italic;">*Preço pode variar conforme porte do pet.</p>
+        <button class="btn-primary" style="margin-top: 2rem;" onclick="document.getElementById('modal-saiba-mais').style.display='none'">Fechar</button>
+    `;
+    
+    modal.style.display = 'block';
+}
+
+window.abrirModalSaibaMais = abrirModalSaibaMais;
